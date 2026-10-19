@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     const novel = await updateNovel(input, uploadedUrl);
     saved = true;
     revalidatePath("/");
+    revalidatePath("/chuong/[id]", "page");
     return json({ novel });
   } catch (error) {
     if (uploadedUrl && !saved) { try { await del(uploadedUrl); } catch { /* Keep the original request error; never log credentials. */ } }

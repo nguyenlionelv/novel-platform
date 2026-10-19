@@ -4,12 +4,13 @@ Website đọc một tiểu thuyết. Độc giả không cần tài khoản; tr
 
 ## Trạng thái
 
-Đã triển khai giai đoạn 1–3: nền tảng và trang `/admin` quản lý một truyện, ảnh bìa, chương và ẩn đánh giá. Trang đọc công khai và gửi đánh giá thuộc giai đoạn 4–5; trang chủ hiện vẫn là màn hình nền tảng.
+Đã triển khai giai đoạn 1–4: nền tảng, admin, trang giới thiệu/mục lục và trang đọc chương. Độc giả đọc không cần tài khoản ứng dụng; form gửi đánh giá và điểm trung bình thuộc giai đoạn 5.
 
 - [Kế hoạch và bàn giao](PLAN.md)
 - [Bố cục giao diện](docs/UI_SPEC.md)
 - [Kết quả kiểm tra giai đoạn 2](docs/STAGE_2_REPORT.md)
 - [Kết quả kiểm tra giai đoạn 3](docs/STAGE_3_REPORT.md)
+- [Kết quả kiểm tra giai đoạn 4](docs/STAGE_4_REPORT.md)
 - [Quy tắc agent](AGENTS.md)
 
 ## Chạy local
@@ -87,12 +88,22 @@ E2E chỉ chấp nhận schema `novel_preview`, dùng mật khẩu local mà kh�
 
 `/api/health` trả `{"status":"ok"}` khi đọc được đúng một bản ghi truyện, hoặc HTTP 503 với thông báo chung khi chưa sẵn sàng. Endpoint không trả chi tiết database, cấu hình hoặc secret.
 
+## Đọc truyện
+
+`/` hiển thị bìa, tên/tác giả, giới thiệu, trạng thái và mục lục chỉ gồm chương đã đăng. Nút Đọc từ đầu mở chương có thứ tự nhỏ nhất; mục lục tải thêm 30 chương mỗi lần.
+
+`/chuong/[id]` giữ xuống dòng, có chương trước/sau theo thứ tự các chương đã đăng và về mục lục. Cỡ chữ 18/20/22/24 px và nền sáng/tối được lưu tại `localStorage` với khóa `novel-reading-v1`; nếu không lưu được, điều khiển vẫn dùng được trong trang hiện tại. Chương nháp/không tồn tại trả 404, không gửi tiêu đề/nội dung nháp vào HTML hoặc metadata.
+
+Vùng nội dung chương chặn chọn chữ, copy/cut, kéo văn bản và menu chuột phải. Admin và ô nhập hoạt động bình thường; không chặn phím tắt toàn trang, cuộn, phóng to hoặc trình đọc màn hình. Đây là hạn chế sao chép thông thường, không thể chặn tuyệt đối trích xuất nội dung, chụp màn hình hoặc OCR.
+
+Trang công khai render theo request; `/api/chapters` dùng `no-store`, chỉ trả ID/thứ tự/tiêu đề published. React `cache()` chỉ khử truy vấn trùng trong lượt render, không lưu dữ liệu giữa request. Các thao tác admin vẫn gọi `revalidatePath` cho trang chủ và pattern trang đọc; sửa metadata truyện cũng làm mới metadata trang đọc.
+
 ## Preview
 
-[Mở admin Preview giai đoạn 3](https://novel-platform-apgirpu8k-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication, đăng nhập tài khoản có quyền để xem rồi dùng mật khẩu admin Preview.
+[Mở truyện Preview giai đoạn 4](https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app) · [Admin](https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication; đăng nhập tài khoản Vercel có quyền để xem. Chỉ `/admin` cần thêm mật khẩu admin Preview.
 
 ```powershell
-npx --yes vercel@latest curl https://novel-platform-apgirpu8k-nguyenlionel.vercel.app/api/health --scope nguyenlionel
+npx --yes vercel@latest curl https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app/api/health --scope nguyenlionel
 ```
 
 Deploy tiếp theo mặc định là Preview:
@@ -105,6 +116,6 @@ npx --yes vercel@latest deploy --yes --scope nguyenlionel --project novel-platfo
 
 ## Giới hạn đã ghi nhận
 
-- Admin lưu được dữ liệu thật. Trang chủ/đọc và form đánh giá công khai sẽ tiếp tục ở giai đoạn 4–5.
+- Admin và trang đọc hoạt động với dữ liệu thật. Form đánh giá công khai sẽ tiếp tục ở giai đoạn 5.
 - `npm audit --omit=dev` không có vulnerability tại thời điểm kiểm tra. Full audit có advisory chưa có bản vá cho `braces` trong chuỗi dependency của ESLint/Next lint config, chỉ dùng lúc phát triển. Không chạy `npm audit fix --force` để hạ phiên bản framework; kiểm tra bản vá upstream khi cập nhật dependency.
-- Hạn chế copy nội dung chương sẽ được làm ở giai đoạn 4; không thể chặn tuyệt đối việc trích xuất nội dung đã gửi đến trình duyệt.
+- Hạn chế copy đã áp dụng trong nội dung chương; không thể chặn tuyệt đối việc trích xuất nội dung đã gửi đến trình duyệt.

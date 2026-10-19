@@ -146,15 +146,17 @@ Thực hiện theo thứ tự:
 
 Thực hiện theo thứ tự:
 
-1. [ ] Dựng trang chủ từ bản ghi truyện; hiển thị bìa, thông tin, mục lục chỉ gồm chương đã đăng và nút Đọc từ đầu.
-2. [ ] Làm trang chương bằng ID; truy vấn công khai chỉ lấy chương đã đăng. Chương nháp/không tồn tại trả về trang không tìm thấy, không gửi nội dung xuống trình duyệt.
-3. [ ] Render văn bản an toàn, giữ đoạn và xuống dòng; thêm chương trước/sau theo thứ tự các chương đã đăng, xử lý đúng chương đầu/cuối.
-4. [ ] Thêm cỡ chữ và sáng/tối; chỉ lưu lựa chọn giao diện trên trình duyệt.
-5. [ ] Chặn chọn chữ, copy/cut, kéo văn bản và menu chuột phải trong vùng nội dung chương; giữ các ô nhập và admin hoạt động bình thường.
-6. [ ] Nối cập nhật/xóa cache khi admin đăng, sửa, gỡ hoặc xóa; kiểm tra cả trang chủ, chương và điều hướng liên quan.
-7. [ ] Thêm title/description cơ bản, trạng thái chưa có chương và kiểm tra bố cục mobile, bàn phím, phóng to.
+1. [x] Dựng trang chủ từ bản ghi truyện; hiển thị bìa, thông tin, mục lục chỉ gồm chương đã đăng và nút Đọc từ đầu.
+2. [x] Làm trang chương bằng ID; truy vấn công khai chỉ lấy chương đã đăng. Chương nháp/không tồn tại trả về trang không tìm thấy, không gửi nội dung xuống trình duyệt.
+3. [x] Render văn bản an toàn, giữ đoạn và xuống dòng; thêm chương trước/sau theo thứ tự các chương đã đăng, xử lý đúng chương đầu/cuối.
+4. [x] Thêm cỡ chữ và sáng/tối; chỉ lưu lựa chọn giao diện trên trình duyệt.
+5. [x] Chặn chọn chữ, copy/cut, kéo văn bản và menu chuột phải trong vùng nội dung chương; giữ các ô nhập và admin hoạt động bình thường.
+6. [x] Nối cập nhật/xóa cache khi admin đăng, sửa, gỡ hoặc xóa; kiểm tra cả trang chủ, chương và điều hướng liên quan.
+7. [x] Thêm title/description cơ bản, trạng thái chưa có chương và kiểm tra bố cục mobile, bàn phím, phóng to.
 
 Đầu ra: khách có thể mở truyện và đọc liên tục mà không đăng nhập.
+
+Đã hoàn thành: xem `docs/STAGE_4_REPORT.md`. Preview giai đoạn 4: https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app. Giữ Vercel Authentication của môi trường thử; ứng dụng không yêu cầu tài khoản độc giả. Đã kiểm tra hai chương tạm, nháp và cập nhật/gỡ/đăng lại/xóa trên local và HTTPS Preview, rồi dọn đúng dữ liệu thử.
 
 Điều kiện chuyển giai đoạn: đọc được hai chương, điều hướng đúng; URL trực tiếp không lộ nháp; hạn chế copy không làm hỏng việc đọc hoặc nhập liệu.
 
@@ -232,13 +234,13 @@ Thực hiện theo thứ tự:
 
 ## 8. Bàn giao giữa các chat
 
-- Trạng thái: hoàn thành giai đoạn 1–3; admin dùng database/Blob thật và đã qua kiểm thử trình duyệt. Preview giai đoạn 3 READY, đăng nhập/API HTTPS qua; không phát hành Production.
+- Trạng thái: hoàn thành giai đoạn 1–4; admin và trang đọc dùng dữ liệu thật. Preview cuối READY, đọc/nháp/cache và browser mobile với điều khiển sẵn sàng tương tác đã kiểm tra trên HTTPS. Không phát hành Production.
 - Đã có: phạm vi một truyện, admin mật khẩu riêng, đọc công khai, đánh giá không tài khoản, hạn chế sao chép thông thường; giai đoạn 0 chuẩn bị và bảy giai đoạn triển khai có bước làm, đầu ra, điều kiện hoàn thành.
-- File hiện tại: UI quản trị ở `src/components/admin/`, trang `/admin` và API ở `src/app/`, truy vấn quản trị ở `src/lib/db/admin.ts`, validation/http ở `src/lib/admin/`; có Playwright Edge và `tests/e2e/admin.spec.ts`. Xem `docs/STAGE_3_REPORT.md`. Repository local nhánh `main`, chưa có remote.
+- File hiện tại: trang chủ `src/app/page.tsx`, đọc `src/app/chuong/[id]/page.tsx`, 404 `src/app/not-found.tsx`, API mục lục `src/app/api/chapters/route.ts`, UI đọc `src/components/reader/`, kiểu/tuỳ chọn `src/lib/reader/`, query published ở `src/lib/db/queries.ts`; admin giữ nguyên vị trí ở giai đoạn 3. Có E2E admin/reader và unit preferences. Xem `docs/STAGE_4_REPORT.md`. Repository local nhánh `main`, chưa có remote.
 - Ràng buộc mới nhất: không build Docker trên máy người dùng; đã ghi quy tắc trong `AGENTS.md` và phần công nghệ của kế hoạch.
 - Lựa chọn mới: người dùng từ chối Neon, chọn Supabase và cho phép tạo project riêng `novel-platform` trong `nguyenlionelv's Org`; ref `fbtpriygrhtalsblzbhh`, Singapore. Vercel project `nguyenlionel/novel-platform`, Blob `novel-platform-covers`.
-- Kiểm tra giai đoạn 3: lint/typecheck/build qua; 5/5 unit test qua; E2E Edge toàn luồng admin qua (31,4 giây), gồm upload Blob thật, hai chương, thay đổi trạng thái, trùng thứ tự, xóa, hết phiên vẫn giữ nội dung, ẩn đánh giá, 401/403/413/429 và request đồng thời. Đã xem screenshot desktop/mobile 390 px, không tràn ngang. Fixture chương/ảnh/đánh giá đã xóa và metadata/rate limit đã khôi phục; Preview/Production còn 0 chương, 0 đánh giá. Trang đọc và đánh giá công khai chưa triển khai.
-- Vướng mắc đã xử lý: pipelining Postgres.js gây treo trên Supavisor transaction pooler; mọi query ứng dụng dùng `withDb` giữ riêng kết nối và chờ tuần tự trong callback, pool tối đa 2. Không tự dùng raw `getDb` cho query mới hoặc Promise.all câu SQL trên cùng handle. Chưa có nội dung truyện/bìa thật, nhập sau trong admin. Dev/build dùng Webpack, không Docker. Advisory dependency lint vẫn như báo cáo giai đoạn 2; chưa chạy lại audit ở giai đoạn 3.
+- Kiểm tra giai đoạn 4: lint/typecheck/build qua, 6/6 unit; E2E admin + reader 2/2 qua (41,1 giây), reader sau bổ sung qua (17,6 giây). Đã thử Đọc từ đầu, thứ tự/biên/nháp, text an toàn/giữ dòng, 30 chương/lượt và retry, cache update/gỡ/đăng lại/xóa, font/sáng tối/lưu hoặc chặn storage, copy chỉ vùng article, bàn phím, CSS zoom 200%, mobile sáng/tối không tràn. HTTPS Preview API/đọc/404/cache qua; browser Preview cũng đã mở và dùng điều khiển thật. Tất cả fixture đã dọn; Preview còn 1 chương sẵn có của người dùng, Production 0. Không sửa chương sẵn có. Form/điểm đánh giá công khai chưa triển khai.
+- Quy tắc tiếp tục: query mới dùng `withDb` giữ riêng kết nối và chờ tuần tự trong callback, pool tối đa 2; không pipeline SQL trên cùng handle. `getNovel`/`getPublishedChapter` dùng React cache trong lượt render; home/reader dynamic, public API no-store. Bảo vệ copy chỉ article; không đặt listener chặn toàn trang. Đã có thông tin truyện và một chương người dùng nhập, không ghi đè hoặc dọn theo trạng thái rỗng cũ. Dev/build Webpack, không Docker. Chưa chạy lại audit ở giai đoạn 4; advisory lint dependency vẫn như báo cáo giai đoạn 2.
 - Secrets: đã đồng bộ Development/Preview/Production. Chỉ đọc tên biến và trạng thái, không in giá trị. Mật khẩu admin ban đầu ở `.local/admin-access.txt`, bị ignore. File CA Supabase là certificate công khai, không phải secret.
-- Preview giai đoạn 3: https://novel-platform-apgirpu8k-nguyenlionel.vercel.app/admin, giữ Vercel Authentication; deployment `dpl_4ZNDanDZdY2BSaK9RbCSbshzrYiG`, inspect target preview/READY, build 49 giây, Functions sin1. Health/admin/auth/session/API đã kiểm tra trên HTTPS thật. Local dev cổng 3100 còn chạy; kiểm tra listener trước khi khởi động thêm. Vercel CLI 64.5.0 dùng cache riêng `.local/npm-cache` vì cache npm chung thiếu module. Bản Preview giai đoạn 2 và sự cố deploy đầu ghi trong báo cáo cũ.
-- Bước tiếp theo sau khi người dùng giao: giai đoạn 4, dựng trang chủ/mục lục và `/chuong/[id]`, dùng query chỉ lấy published, kiểm tra lại nháp/đăng/gỡ/xóa và cache trên route đọc thật. Thêm điều hướng, sáng/tối, cỡ chữ và hạn chế copy chỉ trong nội dung chương. Không tự tạo lại project/database hoặc làm nhiều truyện. Phạm vi turn này là giai đoạn 3.
+- Preview giai đoạn 4: https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app, giữ Vercel Authentication; deployment `dpl_8ouoBA2zyCHEihZU61wmPFnA2tuk`, inspect target preview/READY, build 44 giây, Functions sin1. Browser mobile production runtime qua: mở truyện/chương, cỡ chữ/nền tối và lưu qua reload, không tràn hoặc lỗi JS. Kiểm tra HTTPS hai chương tạm/nháp/cache ở bản giai đoạn 4 trước lần bổ sung nút chờ hydration cũng qua. Local dev cổng 3100 còn chạy; kiểm tra listener trước khi khởi động thêm. CLI 64.5.0 dùng cache `.local/npm-cache`. Không có remote Git và chưa phát hành Production.
+- Bước tiếp theo sau khi người dùng giao: giai đoạn 5, form đánh giá tên + sao + nhận xét tuỳ chọn, validate/chống spam bằng rate limit database hiện có; hiển thị danh sách/điểm trung bình chỉ từ review chưa ẩn và nối cập nhật sau gửi/ẩn. Dùng UI_SPEC, không thêm tài khoản độc giả hoặc dịch vụ mới. Không tạo lại project/database. Phạm vi turn này là giai đoạn 4.
