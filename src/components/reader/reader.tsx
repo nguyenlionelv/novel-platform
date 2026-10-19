@@ -8,6 +8,7 @@ import { ChapterList } from "./chapter-list";
 import { ChapterNavigation } from "./chapter-navigation";
 import { ReaderPanel } from "./reader-panel";
 import { ReadingOptions } from "./reading-options";
+import { splitChapterParagraphs } from "@/lib/reader/paragraphs";
 
 const defaultSnapshot = JSON.stringify(DEFAULT_READING);
 let fallback = defaultSnapshot;
@@ -51,7 +52,7 @@ export function Reader({ novelTitle, chapter, toc, children }: { novelTitle: str
     <div className="reader-frame">
       <header className="reader-heading"><Link href="/" prefetch={false} className="reader-novel-title reader-display">{novelTitle}</Link><p className="public-eyebrow my-4">CHƯƠNG {chapter.position}</p><h1 className="reader-chapter-title reader-display">{chapter.title}</h1></header>
       <ChapterNavigation previousId={chapter.previous_id} nextId={chapter.next_id} position="top" onOpenToc={() => openPanel("toc")} />
-      <article aria-label="Nội dung chương" tabIndex={0} className="chapter-content" style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight }} draggable={false} onCopy={block} onCut={block} onContextMenu={block} onDragStart={block}>{chapter.content}</article>
+      <article aria-label="Nội dung chương" tabIndex={0} className="chapter-content" style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight, "--paragraph-gap": `${preferences.paragraphGap}em` } as CSSProperties} draggable={false} onCopy={block} onCut={block} onContextMenu={block} onDragStart={block}>{splitChapterParagraphs(chapter.content).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</article>
       <div id="cuoi-chuong"><p className="reader-endnote">Hết chương {chapter.position}</p><ChapterNavigation previousId={chapter.previous_id} nextId={chapter.next_id} position="bottom" onOpenToc={() => openPanel("toc")} /></div>
       {children}
     </div>

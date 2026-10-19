@@ -18,8 +18,8 @@
 - Mục tiêu: bản dùng được trong **một ngày, khoảng 8 giờ làm việc**, theo từng giai đoạn trong `PLAN.md`.
 - Trang chủ chính là trang giới thiệu truyện: bìa, tên, tác giả, giới thiệu và mục lục; không hiển thị form/danh sách đánh giá ở trang chủ.
 - Trang đọc từng chương: tên truyện nổi bật, tiêu đề đúng font, nội dung; chương trước/sau cả đầu và cuối chương. Mục lục kéo ra/vào bên trái, tuỳ chọn đọc bên phải và nút mũi tên xuống cuối chương ở thanh trên; ưu tiên điện thoại.
-- Kiểu chữ đọc: độc giả chọn **DejaVu Serif** (mặc định, đóng gói `next/font/local`) hoặc **Times New Roman** (font hệ thống, thiếu thì dự phòng DejaVu). Lưu cùng tuỳ chọn đọc; không quay lại Georgia hoặc đóng gói font Windows khi chưa có quyền phân phối. Giữ tiếng Việt và xuống dòng của nội dung gốc.
-- Tuỳ chọn đọc gồm cỡ chữ, kiểu chữ, nền sáng/tối, giãn dòng 1,5–2,3 và độ rộng 600/720/900 px (tự co trên mobile). Lưu ở `novel-reading-v1`, dữ liệu cũ thiếu trường dùng mặc định. Tên truyện/tiêu đề/nội dung cùng font đọc; tiêu đề serif trang chủ/admin/404 dùng DejaVu đóng gói toàn ứng dụng.
+- Kiểu chữ đọc: độc giả chọn **DejaVu Serif** (mặc định, đóng gói `next/font/local`) hoặc **Times New Roman** (font hệ thống, thiếu thì dự phòng DejaVu). Lưu cùng tuỳ chọn đọc; không quay lại Georgia hoặc đóng gói font Windows khi chưa có quyền phân phối. Giữ tiếng Việt và nội dung gốc trong database. Khi đọc, mỗi LF/CRLF/CR tạo đoạn riêng; dòng trống chỉ phân cách, không tạo đoạn rỗng. Dòng tự xuống theo màn hình vẫn nằm trong đoạn. Mỗi đoạn có thụt dòng đầu 2em; dùng phần tử p và text an toàn, không chèn HTML hay dấu cách vào dữ liệu lưu.
+- Tuỳ chọn đọc gồm cỡ chữ, kiểu chữ, nền sáng/tối, giãn dòng 1,5–2,3, **giãn đoạn riêng** 0,5/0,8/1,2/1,6em (mặc định 0,8em thêm giữa hai đoạn) và độ rộng 600/720/900 px (tự co trên mobile). Giãn đoạn luôn cộng thêm khoảng cách ngoài line-height, không dùng line-height thay cho khoảng cách đoạn. Lưu ở `novel-reading-v1`, dữ liệu cũ thiếu trường dùng mặc định. Tên truyện/tiêu đề/nội dung cùng font đọc; tiêu đề serif trang chủ/admin/404 dùng DejaVu đóng gói toàn ứng dụng.
 - Đánh giá nằm dưới nội dung mỗi trang đọc, **dùng chung theo truyện**, không tách theo chương; gửi/ẩn phải cập nhật trang đọc.
 - Độc giả **không cần tài khoản**, không đăng nhập và không xác thực email.
 - Form đánh giá: tên hiển thị, số sao 1–5 và nhận xét tùy chọn. Admin được ẩn đánh giá spam.
@@ -68,6 +68,7 @@ Không tự mở rộng thành nền tảng nhiều truyện. Không tự thêm 
 
 - **Không build Docker trên máy của người dùng.** Không chạy `docker build`, `docker buildx build`, `docker compose build`, `docker compose up --build` hoặc script/công cụ khác kích hoạt build image cục bộ, kể cả thông qua WSL hoặc Docker Desktop.
 - Phát triển và kiểm tra bằng Node.js/package manager trực tiếp; deploy bằng quy trình Vercel. Kiểm tra script trước khi chạy để tránh build Docker gián tiếp. Nếu một bước bắt buộc cần build image, ghi rõ vướng mắc và chuyển sang phương án build từ xa khi đã được ủy quyền; không tự build trên máy người dùng.
+- Theo yêu cầu giai đoạn 6, Production đã được phát hành sau nghiệm thu; giữ schema và dữ liệu Production riêng, không tự sao chép truyện/đánh giá Preview sang Production. Nội dung thực tế nhập ở giai đoạn 7 hoặc theo yêu cầu tiếp theo.
 - Làm từng giai đoạn trong `PLAN.md`, ưu tiên luồng hoàn chỉnh: admin đăng → độc giả đọc → độc giả đánh giá.
 - Tự quyết định các chi tiết nhỏ, có thể đảo ngược; không hỏi lại các yêu cầu đã chốt.
 - Chỉ hỏi khi thiếu thông tin thực sự chặn bước tiếp theo, cần quyền truy cập hoặc quyết định làm thay đổi phạm vi/chi phí. Trong lúc chờ, tiếp tục phần độc lập nếu có.

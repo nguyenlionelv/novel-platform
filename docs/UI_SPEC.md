@@ -29,7 +29,9 @@ Không cần những dữ liệu này để bắt đầu dựng nền tảng. Kh
 | Chỉnh cỡ chữ | 18 / 20 / 22 / 24 px; giới hạn lựa chọn rõ ràng |
 | Chiều rộng trang chủ/admin | Tối đa 1.040 px, căn giữa |
 | Chiều rộng nội dung đọc | Hẹp 600 / vừa 720 (mặc định) / rộng 900 px, căn giữa, tự co theo màn hình |
-| Giãn dòng | 1,5 / 1,7 / 1,9 (mặc định) / 2,1 / 2,3 |
+| Giãn dòng trong đoạn | 1,5 / 1,7 / 1,9 (mặc định) / 2,1 / 2,3 |
+| Giãn đoạn | Khoảng cách thêm 0,5 / 0,8 (mặc định) / 1,2 / 1,6em, độc lập line-height |
+| Thụt đầu đoạn | Dòng đầu mỗi đoạn 2em; các dòng tự xuống còn lại thẳng lề |
 | Tên truyện / tiêu đề chương | 28–38 px / 23–30 px, font đọc đã chọn, 400, không tổng hợp đậm/nghiêng |
 | Khoảng cách | Theo bước 8 px; khối chính cách nhau 32–48 px |
 | Bo góc | 12 px cho khối/form; 8 px cho nút/ô nhập |
@@ -81,11 +83,11 @@ Font giao diện dùng hệ thống; DejaVu Serif được đóng gói cùng ứ
 ```
 
 - Mục lục mở panel bên trái, đóng/mở bằng nút trên thanh hoặc giữa hai nút chuyển chương. Chỉ liệt kê chương đã đăng; đánh dấu chương hiện tại và tải thêm 30 chương/lượt. Đóng qua nút ×, Escape, click nền ngoài hoặc chọn chương; trả focus về nút mở.
-- Tuỳ chọn đọc mở panel bên phải: cỡ chữ, DejaVu Serif/Times New Roman, giãn dòng, độ rộng khung, sáng/tối và khôi phục mặc định. Panel cuộn riêng trên màn hình thấp; không tràn ngang, thao tác bàn phím nằm trong dialog.
+- Tuỳ chọn đọc mở panel bên phải: cỡ chữ, DejaVu Serif/Times New Roman, giãn dòng, giãn đoạn, độ rộng khung, sáng/tối và khôi phục mặc định. Panel cuộn riêng trên màn hình thấp; không tràn ngang, thao tác bàn phím nằm trong dialog.
 - Mũi tên ↓ trên thanh cuộn đến cuối nội dung/chỗ chuyển chương; hỗ trợ giảm chuyển động của thiết bị. Không cần kéo chuột qua toàn bộ nội dung.
 - Tên truyện, tiêu đề chương và nội dung dùng cùng font được chọn, chữ thường 400, không đậm/nghiêng tổng hợp. Tên truyện lớn hơn tiêu đề chương và liên kết về trang truyện. DejaVu được đóng gói toàn ứng dụng để tiêu đề trang chủ/admin/404 cũng đúng font.
-- Tất cả tuỳ chọn lưu trong trình duyệt; mặc định 20 px, DejaVu, nền sáng, giãn dòng 1,9, rộng 720 px. Dữ liệu cũ thiếu trường dùng mặc định mà giữ các lựa chọn hợp lệ khác. Times New Roman thiếu trên thiết bị sẽ dự phòng DejaVu; không phân phối font Windows.
-- Nội dung giữ xuống dòng và dòng trống bằng cách render text an toàn, không thực thi HTML người nhập.
+- Tất cả tuỳ chọn lưu trong trình duyệt; mặc định 20 px, DejaVu, nền sáng, giãn dòng 1,9, giãn đoạn 0,8em, rộng 720 px. Dữ liệu cũ thiếu trường dùng mặc định mà giữ các lựa chọn hợp lệ khác. Times New Roman thiếu trên thiết bị sẽ dự phòng DejaVu; không phân phối font Windows.
+- Mỗi lần Enter (LF/CRLF/CR) bắt đầu đoạn mới bằng phần tử p. Dòng trống tách đoạn, không thêm đoạn rỗng. Mỗi đoạn thụt dòng đầu 2em; dòng tự xuống theo màn hình vẫn nằm trong đoạn. Giãn dòng áp dụng bên trong; giãn đoạn là margin thêm giữa hai đoạn nên khoảng cách chuyển đoạn lớn hơn khoảng cách hai dòng thường. Không đổi nội dung gốc trong database và không thực thi HTML/script.
 - Chương trước/sau tính theo các chương đã đăng. Không có chương liền kề thì vô hiệu hóa nút tương ứng; không vòng từ chương cuối về chương đầu.
 - Chương nháp/không tồn tại: trang không tìm thấy với liên kết về mục lục, không gửi nội dung nháp xuống client.
 - Chặn chọn chữ, copy/cut, kéo thả và menu chuột phải chỉ trên phần nội dung chương. Không đặt lớp phủ, không chặn toàn bộ phím tắt hoặc công cụ trình duyệt.

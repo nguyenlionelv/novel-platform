@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
-import { createHmac, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomUUID } from "node:crypto";
+import { sealData } from "iron-session";
 import nextEnv from "@next/env";
 import postgres from "postgres";
 import { del } from "@vercel/blob";
@@ -23,6 +24,10 @@ test("admin authentication, authorization, novel cover and chapter lifecycle", a
     await sql`delete from novel_preview.rate_limits where key = ${rateKey}`;
     for (const endpoint of ["overview", "chapters", "reviews"]) expect((await request.get(`/api/admin/${endpoint}`)).status()).toBe(401);
     for (const endpoint of ["novel", "chapters", "reviews"]) expect((await request.post(`/api/admin/${endpoint}`, { headers: { origin }, data: {} })).status()).toBe(401);
+    const version = createHash("sha256").update(process.env.ADMIN_PASSWORD_HASH!).digest("hex");
+    const expired = await sealData({ isAdmin: true, expiresAt: Date.now() - 1000, passwordVersion: version }, { password: process.env.SESSION_SECRET!, ttl: 60 });
+    const oldPassword = await sealData({ isAdmin: true, expiresAt: Date.now() + 60000, passwordVersion: "0".repeat(64) }, { password: process.env.SESSION_SECRET!, ttl: 60 });
+    for (const value of [expired, oldPassword, "tampered-session"]) expect((await request.get("/api/admin/overview", { headers: { cookie: `novel_admin=${value}` } })).status()).toBe(401);
     expect((await request.post("/api/admin/session", { headers: { origin: "https://attacker.example" }, data: { password: "wrong" } })).status()).toBe(403);
     expect((await request.post("/api/admin/session", { data: { password: "wrong" } })).status()).toBe(403);
     expect((await request.post("/api/admin/session", { headers: { origin }, data: { password: "x".repeat(5000) } })).status()).toBe(413);

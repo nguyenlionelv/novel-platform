@@ -8,6 +8,8 @@ test("reading preferences accept only supported sizes/themes and tolerate broken
   assert.deepEqual(parseReadingPreferences('{"lineHeight":2.3,"width":"wide"}'), { ...DEFAULT_READING, lineHeight: 2.3, width: "wide" });
   assert.deepEqual(parseReadingPreferences('{"lineHeight":"2.3","width":"100vw"}'), DEFAULT_READING);
   assert.deepEqual(parseReadingPreferences('{"lineHeight":100,"width":"narrow"}'), { ...DEFAULT_READING, width: "narrow" });
+  assert.deepEqual(parseReadingPreferences('{"paragraphGap":1.6,"lineHeight":1.5}'), { ...DEFAULT_READING, paragraphGap: 1.6, lineHeight: 1.5 });
+  for (const paragraphGap of [0, -1, 100, "1.2", null]) assert.deepEqual(parseReadingPreferences(JSON.stringify({ paragraphGap })), DEFAULT_READING);
   assert.deepEqual(parseReadingPreferences('{"font":"url(evil)"}'), DEFAULT_READING);
   for (const value of [null, "undefined", "{", "null", "[]", '{"fontSize":-1,"theme":"url(bad)"}', '{"fontSize":"24","theme":"light"}']) assert.deepEqual(parseReadingPreferences(value), DEFAULT_READING);
 });

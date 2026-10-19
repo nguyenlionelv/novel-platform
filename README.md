@@ -4,7 +4,7 @@ Website đọc một tiểu thuyết. Độc giả không cần tài khoản; tr
 
 ## Trạng thái
 
-Đã triển khai giai đoạn 1–5: nền tảng, admin, trang truyện/đọc và đánh giá không tài khoản. Trang đọc có mục lục bên trái, tuỳ chọn đọc bên phải (hai font, cỡ chữ, nền, giãn dòng, độ rộng), chuyển chương đầu/cuối, nút xuống cuối chương và đánh giá chung. Đã bổ sung nút tải bìa/xem trước trong admin. Chưa phát hành Production; Preview giữ lớp bảo vệ Vercel.
+Đã triển khai giai đoạn 1–6: nền tảng, admin, trang truyện/đọc và đánh giá không tài khoản. Trang đọc có mục lục bên trái, tuỳ chọn đọc bên phải (hai font, cỡ chữ, nền, giãn dòng, giãn đoạn, độ rộng), chuyển chương đầu/cuối, nút xuống cuối chương và đánh giá chung. Đã bổ sung nút tải bìa/xem trước trong admin. Đã phát hành Production và nghiệm thu HTTPS; Preview giữ lớp bảo vệ Vercel. Production dùng dữ liệu riêng, hiện chưa nhập truyện.
 
 - [Kế hoạch và bàn giao](PLAN.md)
 - [Bố cục giao diện](docs/UI_SPEC.md)
@@ -13,6 +13,7 @@ Website đọc một tiểu thuyết. Độc giả không cần tài khoản; tr
 - [Kết quả kiểm tra giai đoạn 4](docs/STAGE_4_REPORT.md)
 - [Kết quả kiểm tra giai đoạn 5 và font](docs/STAGE_5_REPORT.md)
 - [Bổ sung trang đọc trước giai đoạn 6](docs/READER_REVISION_REPORT.md)
+- [Nghiệm thu và phát hành giai đoạn 6](docs/STAGE_6_REPORT.md)
 - [Quy tắc agent](AGENTS.md)
 
 ## Chạy local
@@ -96,7 +97,7 @@ Test đánh giá tạo bản ghi có prefix ngẫu nhiên; `finally` ẩn đúng
 
 `/` hiển thị bìa, tên/tác giả, giới thiệu, trạng thái và mục lục chỉ gồm chương đã đăng. Nút Đọc từ đầu mở chương có thứ tự nhỏ nhất; mục lục tải thêm 30 chương mỗi lần.
 
-`/chuong/[id]` giữ xuống dòng, có chương trước/sau theo thứ tự các chương đã đăng và về mục lục. Thanh trên có mục lục kéo ra/vào bên trái, Tuỳ chọn đọc bên phải và mũi tên xuống cuối nội dung. Nút chuyển chương có cả dưới tiêu đề và cuối chương. Cỡ chữ 18/20/22/24 px, nền sáng/tối, giãn dòng 1,5/1,7/1,9/2,1/2,3 và độ rộng 600/720/900 px (tự co trên mobile) được lưu tại `localStorage` với khóa `novel-reading-v1`; nếu không lưu được, điều khiển vẫn dùng được trong trang hiện tại. Chương nháp/không tồn tại trả 404, không gửi tiêu đề/nội dung nháp vào HTML hoặc metadata.
+`/chuong/[id]` hiển thị mỗi lần Enter thành một đoạn, thụt dòng đầu 2em và giãn đoạn riêng; dòng trống chỉ tách đoạn, không thêm đoạn rỗng. Nội dung lưu trong database không bị thay đổi. Trang đọc có chương trước/sau theo thứ tự các chương đã đăng và về mục lục. Thanh trên có mục lục kéo ra/vào bên trái, Tuỳ chọn đọc bên phải và mũi tên xuống cuối nội dung. Nút chuyển chương có cả dưới tiêu đề và cuối chương. Cỡ chữ 18/20/22/24 px, nền sáng/tối, giãn dòng 1,5/1,7/1,9/2,1/2,3, giãn đoạn 0,5/0,8/1,2/1,6em (mặc định 0,8em), và độ rộng 600/720/900 px (tự co trên mobile) được lưu tại `localStorage` với khóa `novel-reading-v1`; nếu không lưu được, điều khiển vẫn dùng được trong trang hiện tại. Chương nháp/không tồn tại trả 404, không gửi tiêu đề/nội dung nháp vào HTML hoặc metadata.
 
 Chọn **DejaVu Serif** (mặc định, đóng gói qua `next/font/local`) hoặc **Times New Roman** (font hệ thống). Thiết bị thiếu Times New Roman sẽ dùng DejaVu Serif; giao diện nêu rõ dự phòng. Không phân phối tệp font Windows. Lựa chọn font lưu cùng cỡ chữ/nền; dữ liệu cũ chưa có font tự dùng DejaVu, giữ nguyên tuỳ chọn còn lại. Xem [nguồn/giấy phép font](src/assets/fonts/README.md).
 
@@ -110,12 +111,24 @@ Form dưới nội dung ở mỗi trang đọc chỉ hỏi tên 1–50 ký tự 
 
 `/api/reviews` validate ở server, kiểm tra origin, giới hạn body, honeypot và một lần/phút theo định danh IP được HMAC. Vercel chỉ tin header IP do nền tảng ghi; local dùng chung bucket. GET dùng `no-store`, chỉ trả đánh giá chưa ẩn, mới nhất trước, tải thêm 10 mỗi lượt. Cursor giữ microsecond + UUID để không bỏ sót đánh giá cùng thời điểm. Admin ẩn sẽ loại khỏi cả HTML, API và phép tính điểm ở lượt tải kế tiếp.
 
-## Preview
+## Production
 
-[Mở truyện Preview đã bổ sung](https://novel-platform-9jxrl4bc8-nguyenlionel.vercel.app) · [Admin](https://novel-platform-9jxrl4bc8-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication; đăng nhập tài khoản Vercel có quyền để xem. Chỉ `/admin` cần thêm mật khẩu admin Preview.
+[Website](https://novel-platform-alpha.vercel.app) · [Admin](https://novel-platform-alpha.vercel.app/admin). Trang đọc công khai; admin dùng mật khẩu Production riêng trong dòng `production admin password` của `.local/admin-access.txt`. Mật khẩu Preview không dùng cho Production.
+
+Đã kiểm tra đăng/đọc hai chương, upload bìa và gửi/ẩn đánh giá bằng fixture tạm, sau đó dọn sạch và khôi phục thông tin ban đầu. Production chưa có truyện/chương/đánh giá thật; nhập qua admin ở giai đoạn 7 hoặc theo yêu cầu tiếp theo. Preview vẫn giữ dữ liệu đã có, không tự chuyển sang Production.
+
+Chỉ phát hành cập nhật khi đã kiểm tra và nằm trong phạm vi được giao:
 
 ```powershell
-npx --cache .local/npm-cache --yes vercel@64.5.0 curl https://novel-platform-9jxrl4bc8-nguyenlionel.vercel.app/api/health --scope nguyenlionel
+npx --cache .local/npm-cache --yes vercel@64.5.0 deploy --prod --yes --scope nguyenlionel --project novel-platform
+```
+
+## Preview
+
+[Mở truyện Preview đã bổ sung](https://novel-platform-qpr93li30-nguyenlionel.vercel.app) · [Admin](https://novel-platform-qpr93li30-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication; đăng nhập tài khoản Vercel có quyền để xem. Chỉ `/admin` cần thêm mật khẩu admin Preview.
+
+```powershell
+npx --cache .local/npm-cache --yes vercel@64.5.0 curl https://novel-platform-qpr93li30-nguyenlionel.vercel.app/api/health --scope nguyenlionel
 ```
 
 Deploy tiếp theo mặc định là Preview:
@@ -128,6 +141,6 @@ npx --cache .local/npm-cache --yes vercel@64.5.0 deploy --yes --scope nguyenlion
 
 ## Giới hạn đã ghi nhận
 
-- Admin, trang đọc và đánh giá đã hoạt động với dữ liệu thật. Giai đoạn 6 là nghiệm thu tổng thể và phát hành theo ủy quyền.
+- Admin, trang đọc và đánh giá đã hoạt động với dữ liệu thật. Giai đoạn 6 đã nghiệm thu và phát hành; giai đoạn 7 (nội dung thật/bàn giao cuối) chưa triển khai.
 - `npm audit --omit=dev` không có vulnerability tại thời điểm kiểm tra. Full audit có advisory chưa có bản vá cho `braces` trong chuỗi dependency của ESLint/Next lint config, chỉ dùng lúc phát triển. Không chạy `npm audit fix --force` để hạ phiên bản framework; kiểm tra bản vá upstream khi cập nhật dependency.
 - Hạn chế copy đã áp dụng trong nội dung chương; không thể chặn tuyệt đối việc trích xuất nội dung đã gửi đến trình duyệt.

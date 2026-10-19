@@ -4,6 +4,7 @@ import { createHmac, randomUUID } from "node:crypto";
 import nextEnv from "@next/env";
 import postgres from "postgres";
 import type { ChapterPage, PublishedChapterSummary } from "../../src/lib/reader/types";
+import { splitChapterParagraphs } from "../../src/lib/reader/paragraphs";
 
 nextEnv.loadEnvConfig(process.cwd());
 const origin = "http://localhost:3100";
@@ -79,7 +80,7 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     await page.evaluate(() => document.fonts.ready);
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("DOM.enable"); await cdp.send("CSS.enable");
-    async function renderedFonts(selector = ".chapter-content") {
+    async function renderedFonts(selector = ".chapter-content > p") {
       const { root } = await cdp.send("DOM.getDocument");
       const { nodeId } = await cdp.send("DOM.querySelector", { nodeId: root.nodeId, selector });
       const { fonts } = await cdp.send("CSS.getPlatformFontsForNode", { nodeId });
@@ -97,8 +98,10 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     for (const selector of ["h1", ".reader-novel-title"]) expect(await renderedFonts(selector)).toContain("Times New Roman");
     await closeOptions();
     await page.screenshot({ path: ".local/reader-revision-times.png", fullPage: true });
-    expect(await article.textContent()).toBe(content);
-    expect(await article.evaluate(element => getComputedStyle(element).whiteSpace)).toBe("pre-wrap");
+    expect(await article.locator(":scope > p").allTextContents()).toEqual(splitChapterParagraphs(content));
+    expect((await sql`select content from novel_preview.chapters where id=${first.id}`)[0].content).toBe(content);
+    await expect(article.locator(":scope > p").first()).toHaveCSS("white-space", "pre-wrap");
+    await expect(article.locator(":scope > p").first()).toHaveCSS("text-indent", "40px");
     expect(await page.evaluate(() => "__novelXss" in window)).toBe(false);
     if (!existing.count) await expect(page.getByRole("navigation", { name: "Điều hướng đầu chương" }).getByRole("button", { name: "← Chương trước", exact: true })).toBeDisabled();
     await expect(page.getByRole("navigation", { name: "Điều hướng đầu chương" }).getByRole("link", { name: "Chương sau →", exact: true })).toHaveAttribute("href", `/chuong/${second.id}`);
@@ -114,6 +117,13 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     await page.getByLabel("Giãn dòng", { exact: true }).selectOption("2.3");
     await page.getByLabel("Độ rộng khung", { exact: true }).selectOption("wide");
     await expect(article).toHaveCSS("line-height", "55.2px");
+    await expect(article.locator(":scope > p").nth(1)).toHaveCSS("margin-top", "19.2px");
+    await page.getByLabel("Giãn đoạn", { exact: true }).selectOption("1.2");
+    await expect(article.locator(":scope > p").nth(1)).toHaveCSS("margin-top", "28.8px");
+    await expect(article).toHaveCSS("line-height", "55.2px");
+    await expect(article.locator(":scope > p").first()).toHaveCSS("text-indent", "48px");
+    const spacing = await article.evaluate(el => { const [first, second] = el.querySelectorAll("p"); return second.getBoundingClientRect().top - first.getBoundingClientRect().bottom; });
+    expect(spacing).toBeCloseTo(28.8, 1);
     expect(await article.evaluate(el => el.getBoundingClientRect().width)).toBe(900);
     await page.getByLabel("Độ rộng khung", { exact: true }).selectOption("narrow");
     expect(await article.evaluate(el => el.getBoundingClientRect().width)).toBe(600);
@@ -122,6 +132,7 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     await page.reload();
     await openOptions();
     await expect(page.getByLabel("Giãn dòng", { exact: true })).toHaveValue("2.3");
+    await expect(page.getByLabel("Giãn đoạn", { exact: true })).toHaveValue("1.2");
     await expect(page.getByLabel("Độ rộng khung", { exact: true })).toHaveValue("wide");
     await expect(page.getByLabel("Kiểu chữ", { exact: true })).toHaveValue("times");
     await expect(article).toHaveCSS("font-size", "24px");
@@ -135,6 +146,11 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     await page.getByRole("button", { name: "Chuyển sang nền sáng" }).click();
     for (let index = 0; index < 3; index++) await page.getByRole("button", { name: "Giảm cỡ chữ" }).click();
     await expect(article).toHaveCSS("font-size", "18px");
+    await expect(article.locator(":scope > p").first()).toHaveCSS("text-indent", "36px");
+    const wrapped = await article.locator(":scope > p").first().evaluate(el => { const range = document.createRange(); range.selectNodeContents(el); const lines = new Map<number, number>(); for (const rect of range.getClientRects()) { const y = Math.round(rect.y); lines.set(y, Math.min(lines.get(y) ?? Infinity, rect.x)); } return { left: el.getBoundingClientRect().left, starts: [...lines.values()] }; });
+    expect(wrapped.starts.length).toBeGreaterThan(1);
+    expect(wrapped.starts[0] - wrapped.left).toBeCloseTo(36, 1);
+    expect(wrapped.starts[1] - wrapped.left).toBeCloseTo(0, 1);
     await expect(page.getByRole("button", { name: "Giảm cỡ chữ" })).toBeDisabled();
     await closeOptions();
     await page.screenshot({ path: ".local/reader-revision-mobile-light.png" });
@@ -168,6 +184,7 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     await expect(page.getByRole("article")).toHaveCSS("font-size", "18px");
     await openOptions();
     await expect(page.getByLabel("Kiểu chữ", { exact: true })).toHaveValue("times");
+    await expect(page.getByLabel("Giãn đoạn", { exact: true })).toHaveValue("1.2");
     await expect(page.getByRole("navigation", { name: "Điều hướng đầu chương" }).getByRole("link", { name: "← Chương trước", exact: true })).toHaveAttribute("href", `/chuong/${first.id}`);
     await expect(page.getByRole("navigation", { name: "Điều hướng đầu chương" }).getByRole("button", { name: "Chương sau →", exact: true })).toBeDisabled();
     await closeOptions();
