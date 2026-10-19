@@ -68,7 +68,7 @@ Không tự mở rộng thành nền tảng nhiều truyện. Không tự thêm 
 
 - **Không build Docker trên máy của người dùng.** Không chạy `docker build`, `docker buildx build`, `docker compose build`, `docker compose up --build` hoặc script/công cụ khác kích hoạt build image cục bộ, kể cả thông qua WSL hoặc Docker Desktop.
 - Phát triển và kiểm tra bằng Node.js/package manager trực tiếp; deploy bằng quy trình Vercel. Kiểm tra script trước khi chạy để tránh build Docker gián tiếp. Nếu một bước bắt buộc cần build image, ghi rõ vướng mắc và chuyển sang phương án build từ xa khi đã được ủy quyền; không tự build trên máy người dùng.
-- Theo yêu cầu giai đoạn 6, Production đã được phát hành sau nghiệm thu; giữ schema và dữ liệu Production riêng, không tự sao chép truyện/đánh giá Preview sang Production. Nội dung thực tế nhập ở giai đoạn 7 hoặc theo yêu cầu tiếp theo.
+- Theo yêu cầu giai đoạn 6, Production đã được phát hành sau nghiệm thu; giữ schema và dữ liệu Production riêng, không tự sao chép truyện/đánh giá Preview sang Production. Người dùng đã tự nhập nội dung Production sau phát hành và yêu cầu giữ nguyên; số liệu Production rỗng trong báo cáo nghiệm thu cũ chỉ là lịch sử, không dùng để khôi phục/xoá dữ liệu hiện tại.
 - Làm từng giai đoạn trong `PLAN.md`, ưu tiên luồng hoàn chỉnh: admin đăng → độc giả đọc → độc giả đánh giá.
 - Tự quyết định các chi tiết nhỏ, có thể đảo ngược; không hỏi lại các yêu cầu đã chốt.
 - Chỉ hỏi khi thiếu thông tin thực sự chặn bước tiếp theo, cần quyền truy cập hoặc quyết định làm thay đổi phạm vi/chi phí. Trong lúc chờ, tiếp tục phần độc lập nếu có.

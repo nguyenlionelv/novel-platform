@@ -4,7 +4,7 @@ Website đọc một tiểu thuyết. Độc giả không cần tài khoản; tr
 
 ## Trạng thái
 
-Đã triển khai giai đoạn 1–6: nền tảng, admin, trang truyện/đọc và đánh giá không tài khoản. Trang đọc có mục lục bên trái, tuỳ chọn đọc bên phải (hai font, cỡ chữ, nền, giãn dòng, giãn đoạn, độ rộng), chuyển chương đầu/cuối, nút xuống cuối chương và đánh giá chung. Đã bổ sung nút tải bìa/xem trước trong admin. Đã phát hành Production và nghiệm thu HTTPS; Preview giữ lớp bảo vệ Vercel. Production dùng dữ liệu riêng, hiện chưa nhập truyện.
+Đã triển khai giai đoạn 1–6: nền tảng, admin, trang truyện/đọc và đánh giá không tài khoản. Trang đọc có mục lục bên trái, tuỳ chọn đọc bên phải (hai font, cỡ chữ, nền, giãn dòng, giãn đoạn, độ rộng), chuyển chương đầu/cuối, nút xuống cuối chương và đánh giá chung. Đã bổ sung nút tải bìa/xem trước trong admin. Đã phát hành Production và nghiệm thu HTTPS; Preview giữ lớp bảo vệ Vercel. Production dùng dữ liệu riêng; chủ website đã tự nhập truyện sau phát hành.
 
 - [Kế hoạch và bàn giao](PLAN.md)
 - [Bố cục giao diện](docs/UI_SPEC.md)
@@ -115,7 +115,7 @@ Form dưới nội dung ở mỗi trang đọc chỉ hỏi tên 1–50 ký tự 
 
 [Website](https://novel-platform-alpha.vercel.app) · [Admin](https://novel-platform-alpha.vercel.app/admin). Trang đọc công khai; admin dùng mật khẩu Production riêng trong dòng `production admin password` của `.local/admin-access.txt`. Mật khẩu Preview không dùng cho Production.
 
-Đã kiểm tra đăng/đọc hai chương, upload bìa và gửi/ẩn đánh giá bằng fixture tạm, sau đó dọn sạch và khôi phục thông tin ban đầu. Production chưa có truyện/chương/đánh giá thật; nhập qua admin ở giai đoạn 7 hoặc theo yêu cầu tiếp theo. Preview vẫn giữ dữ liệu đã có, không tự chuyển sang Production.
+Đã kiểm tra đăng/đọc hai chương, upload bìa và gửi/ẩn đánh giá bằng fixture tạm, sau đó dọn sạch và khôi phục thông tin ban đầu khi nghiệm thu. **Sau phát hành, chủ website đã tự nhập nội dung Production**; giữ nguyên dữ liệu này. Preview vẫn giữ dữ liệu riêng, không tự chuyển sang Production. Không chạy lại thao tác khôi phục trạng thái Production rỗng từ báo cáo nghiệm thu cũ.
 
 Chỉ phát hành cập nhật khi đã kiểm tra và nằm trong phạm vi được giao:
 
