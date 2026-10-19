@@ -40,6 +40,7 @@ Không tự mở rộng thành nền tảng nhiều truyện. Không tự thêm 
 - Supabase PostgreSQL trong project riêng `novel-platform` lưu dữ liệu; Vercel Blob lưu ảnh bìa. Người dùng đã chọn Supabase thay Neon; không cài hoặc tạo Neon.
 - Development/Preview dùng schema `novel_preview`, Production dùng `novel_production`, mỗi schema có role ứng dụng riêng. Không đổi sang project Supabase Writing hoặc cho role này truy cập schema kia.
 - Dùng driver `postgres` ở server qua transaction pooler, tắt prepared statements, giữ xác minh TLS bằng CA công khai ở `src/lib/db/supabase-ca.json`. Không cần Supabase Auth hoặc service-role key cho luồng hiện tại.
+- Mã ứng dụng truy vấn qua `withDb` trong `src/lib/db/client.ts`: giữ riêng một kết nối trong mỗi callback, `await` từng câu lệnh và luôn trả kết nối. Không gửi `Promise.all` nhiều câu SQL trên cùng handle; pipelining của Postgres.js không tương thích Supavisor transaction mode. Có thể chạy song song các thao tác `withDb` riêng. Không đặt `max_pipeline: 0` vì lỗi upstream với transaction.
 - Secrets và mật khẩu admin local ở `.env.local`/`.local/`, luôn bị loại khỏi Git và deployment. Không in hoặc đưa vào tài liệu bàn giao.
 - Ba bảng nghiệp vụ: `novels`, `chapters`, `reviews`. Chỉ một truyện trong giao diện; giữ `novel_id` trong chương/đánh giá để nâng cấp sau.
 - Không thêm dịch vụ tài khoản, Redis, backend riêng hoặc thư viện nặng nếu chức năng hiện tại không cần.

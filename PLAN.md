@@ -127,16 +127,18 @@ Thực hiện theo thứ tự:
 
 Thực hiện theo thứ tự:
 
-1. [ ] Làm màn hình nhập mật khẩu, tạo phiên và đăng xuất; kiểm tra phiên server cho toàn bộ đường ghi/quản lý, giới hạn thử sai và bảo vệ origin/CSRF.
-2. [ ] Làm form tên truyện, tác giả, giới thiệu và trạng thái; thêm upload bìa có kiểm tra quyền, định dạng và kích thước.
-3. [ ] Hiển thị danh sách chương theo thứ tự; có nút thêm chương và mở chương để sửa.
-4. [ ] Làm form thứ tự, tiêu đề và nội dung nhiều dòng; giữ đoạn văn, kiểm tra thiếu nội dung và thứ tự trùng.
-5. [ ] Nối thao tác Lưu nháp, Đăng chương, Lưu cập nhật và Gỡ về nháp với database. Không tạo hệ thống phiên bản riêng.
-6. [ ] Thêm xóa chương có xác nhận; hiển thị trạng thái đang lưu, thành công/thất bại và cảnh báo khi rời trang chưa lưu.
-7. [ ] Làm danh sách đánh giá và thao tác ẩn; ở bước này danh sách có thể chưa có dữ liệu, nối thử lại sau giai đoạn 5.
-8. [ ] Kiểm tra khách gọi trực tiếp đường ghi không được phép; tạo hai chương thử để kiểm tra lưu, sửa, trạng thái và thứ tự.
+1. [x] Làm màn hình nhập mật khẩu, tạo phiên và đăng xuất; kiểm tra phiên server cho toàn bộ đường ghi/quản lý, giới hạn thử sai và bảo vệ origin/CSRF.
+2. [x] Làm form tên truyện, tác giả, giới thiệu và trạng thái; thêm upload bìa có kiểm tra quyền, định dạng và kích thước.
+3. [x] Hiển thị danh sách chương theo thứ tự; có nút thêm chương và mở chương để sửa.
+4. [x] Làm form thứ tự, tiêu đề và nội dung nhiều dòng; giữ đoạn văn, kiểm tra thiếu nội dung và thứ tự trùng.
+5. [x] Nối thao tác Lưu nháp, Đăng chương, Lưu cập nhật và Gỡ về nháp với database. Không tạo hệ thống phiên bản riêng.
+6. [x] Thêm xóa chương có xác nhận; hiển thị trạng thái đang lưu, thành công/thất bại và cảnh báo khi rời trang chưa lưu.
+7. [x] Làm danh sách đánh giá và thao tác ẩn; đã kiểm thử bằng đánh giá tạm và xóa đúng fixture sau thử, nối phần công khai ở giai đoạn 5.
+8. [x] Kiểm tra khách gọi trực tiếp đường ghi không được phép; tạo hai chương thử để kiểm tra lưu, sửa, trạng thái và thứ tự.
 
 Đầu ra: bạn có thể tự quản lý truyện, bìa và chương từ trình duyệt.
+
+Đã hoàn thành luồng local bằng database/Blob thật, xem `docs/STAGE_3_REPORT.md`. Trang đọc và mục lục công khai chưa triển khai; kiểm tra cache/đọc hai chương được thực hiện tiếp ở giai đoạn 4.
 
 Điều kiện chuyển giai đoạn: thao tác admin lưu dữ liệu thật; đăng/gỡ có hiệu lực; người không có phiên không thể ghi hoặc upload.
 
@@ -230,13 +232,13 @@ Thực hiện theo thứ tự:
 
 ## 8. Bàn giao giữa các chat
 
-- Trạng thái: hoàn thành giai đoạn 1–2; Next.js, database và Preview chạy được. Chưa bắt đầu giai đoạn 3.
+- Trạng thái: hoàn thành giai đoạn 1–3; admin dùng database/Blob thật và đã qua kiểm thử trình duyệt. Preview giai đoạn 3 READY, đăng nhập/API HTTPS qua; không phát hành Production.
 - Đã có: phạm vi một truyện, admin mật khẩu riêng, đọc công khai, đánh giá không tài khoản, hạn chế sao chép thông thường; giai đoạn 0 chuẩn bị và bảy giai đoạn triển khai có bước làm, đầu ra, điều kiện hoàn thành.
-- File hiện tại: ứng dụng ở `src/`, migration ở `supabase/migrations/`, script kiểm tra ở `scripts/`, tests ở `tests/`, cấu hình Next.js/Vercel, `README.md` và `docs/STAGE_2_REPORT.md`. Repository local nhánh `main`, chưa có remote.
+- File hiện tại: UI quản trị ở `src/components/admin/`, trang `/admin` và API ở `src/app/`, truy vấn quản trị ở `src/lib/db/admin.ts`, validation/http ở `src/lib/admin/`; có Playwright Edge và `tests/e2e/admin.spec.ts`. Xem `docs/STAGE_3_REPORT.md`. Repository local nhánh `main`, chưa có remote.
 - Ràng buộc mới nhất: không build Docker trên máy người dùng; đã ghi quy tắc trong `AGENTS.md` và phần công nghệ của kế hoạch.
 - Lựa chọn mới: người dùng từ chối Neon, chọn Supabase và cho phép tạo project riêng `novel-platform` trong `nguyenlionelv's Org`; ref `fbtpriygrhtalsblzbhh`, Singapore. Vercel project `nguyenlionel/novel-platform`, Blob `novel-platform-covers`.
-- Kiểm tra: lint/typecheck/build qua; 2/2 test mật khẩu/origin qua; database smoke read-write rollback qua; cách ly schema và RLS qua; Blob upload/đọc metadata/xóa ảnh thử qua; security advisors không cảnh báo; local HTTP 200 và Preview health `ok`, trang chủ trạng thái trống đúng. Chưa kiểm thử UI admin/đọc/đánh giá vì chưa triển khai.
-- Vướng mắc: chưa có nội dung truyện/bìa thật, không chặn giai đoạn 3. Dev/build dùng Webpack do lỗi Turbopack Windows. Advisory chưa có bản vá chỉ ở dependency lint đã ghi trong báo cáo; runtime audit không có vulnerability.
+- Kiểm tra giai đoạn 3: lint/typecheck/build qua; 5/5 unit test qua; E2E Edge toàn luồng admin qua (31,4 giây), gồm upload Blob thật, hai chương, thay đổi trạng thái, trùng thứ tự, xóa, hết phiên vẫn giữ nội dung, ẩn đánh giá, 401/403/413/429 và request đồng thời. Đã xem screenshot desktop/mobile 390 px, không tràn ngang. Fixture chương/ảnh/đánh giá đã xóa và metadata/rate limit đã khôi phục; Preview/Production còn 0 chương, 0 đánh giá. Trang đọc và đánh giá công khai chưa triển khai.
+- Vướng mắc đã xử lý: pipelining Postgres.js gây treo trên Supavisor transaction pooler; mọi query ứng dụng dùng `withDb` giữ riêng kết nối và chờ tuần tự trong callback, pool tối đa 2. Không tự dùng raw `getDb` cho query mới hoặc Promise.all câu SQL trên cùng handle. Chưa có nội dung truyện/bìa thật, nhập sau trong admin. Dev/build dùng Webpack, không Docker. Advisory dependency lint vẫn như báo cáo giai đoạn 2; chưa chạy lại audit ở giai đoạn 3.
 - Secrets: đã đồng bộ Development/Preview/Production. Chỉ đọc tên biến và trạng thái, không in giá trị. Mật khẩu admin ban đầu ở `.local/admin-access.txt`, bị ignore. File CA Supabase là certificate công khai, không phải secret.
-- Preview: https://novel-platform-hirbix45q-nguyenlionel.vercel.app, giữ Vercel Authentication. Bản deploy đầu tự gán Production đã được gỡ alias mới; chi tiết trong báo cáo. Local dev đã khởi động trên cổng 3100; kiểm tra listener trước khi khởi động thêm.
-- Bước tiếp theo: thực hiện giai đoạn 3 theo `PLAN.md`, dùng `docs/UI_SPEC.md` và module `src/lib/auth`, `src/lib/security`, `src/lib/db`; không tự tạo lại project/database. Phạm vi turn này chỉ triển khai giai đoạn 2.
+- Preview giai đoạn 3: https://novel-platform-apgirpu8k-nguyenlionel.vercel.app/admin, giữ Vercel Authentication; deployment `dpl_4ZNDanDZdY2BSaK9RbCSbshzrYiG`, inspect target preview/READY, build 49 giây, Functions sin1. Health/admin/auth/session/API đã kiểm tra trên HTTPS thật. Local dev cổng 3100 còn chạy; kiểm tra listener trước khi khởi động thêm. Vercel CLI 64.5.0 dùng cache riêng `.local/npm-cache` vì cache npm chung thiếu module. Bản Preview giai đoạn 2 và sự cố deploy đầu ghi trong báo cáo cũ.
+- Bước tiếp theo sau khi người dùng giao: giai đoạn 4, dựng trang chủ/mục lục và `/chuong/[id]`, dùng query chỉ lấy published, kiểm tra lại nháp/đăng/gỡ/xóa và cache trên route đọc thật. Thêm điều hướng, sáng/tối, cỡ chữ và hạn chế copy chỉ trong nội dung chương. Không tự tạo lại project/database hoặc làm nhiều truyện. Phạm vi turn này là giai đoạn 3.

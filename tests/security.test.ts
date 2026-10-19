@@ -19,4 +19,7 @@ test("admin writes require the exact origin, including protocol and port", () =>
   assert.equal(isSameOrigin(request("https://novel.example:444")), false);
   assert.equal(isSameOrigin(request()), false);
   assert.equal(isSameOrigin(request("null")), false);
+  assert.equal(isSameOrigin(new Request("http://localhost:3100/api/admin", { headers: { origin: "http://127.0.0.1:3100", host: "127.0.0.1:3100" } })), true);
+  assert.equal(isSameOrigin(new Request("http://localhost:3100/api/admin", { headers: { origin: "http://attacker.example", host: "127.0.0.1:3100" } })), false);
+  assert.equal(isSameOrigin(request("https://novel.example/malformed-origin")), false);
 });

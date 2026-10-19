@@ -25,3 +25,11 @@ export function getDb() {
   }
   return client;
 }
+
+// Supavisor transaction mode cannot safely accept pipelined queries. Reserve a
+// connection per operation, await each statement, and always release the lease.
+export async function withDb<T>(work: (sql: postgres.ReservedSql) => Promise<T>): Promise<T> {
+  const sql = await getDb().reserve();
+  try { return await work(sql); }
+  finally { sql.release(); }
+}
