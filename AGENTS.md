@@ -18,6 +18,7 @@
 - Mục tiêu: bản dùng được trong **một ngày, khoảng 8 giờ làm việc**, theo từng giai đoạn trong `PLAN.md`.
 - Trang chủ chính là trang giới thiệu truyện: bìa, tên, tác giả, giới thiệu, mục lục và đánh giá bên dưới.
 - Trang đọc từng chương: nội dung, chương trước/sau, về mục lục, cỡ chữ và sáng/tối; ưu tiên điện thoại.
+- Kiểu chữ đọc: độc giả chọn **DejaVu Serif** (mặc định, đóng gói `next/font/local`) hoặc **Times New Roman** (font hệ thống, thiếu thì dự phòng DejaVu). Lưu cùng tuỳ chọn đọc; không quay lại Georgia hoặc đóng gói font Windows khi chưa có quyền phân phối. Giữ tiếng Việt và xuống dòng của nội dung gốc.
 - Độc giả **không cần tài khoản**, không đăng nhập và không xác thực email.
 - Form đánh giá: tên hiển thị, số sao 1–5 và nhận xét tùy chọn. Admin được ẩn đánh giá spam.
 - Trang admin có một mật khẩu riêng: sửa truyện/bìa, thêm/sửa/xóa chương, lưu nháp, đăng chương và gỡ về nháp.

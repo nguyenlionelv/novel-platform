@@ -4,13 +4,14 @@ Website đọc một tiểu thuyết. Độc giả không cần tài khoản; tr
 
 ## Trạng thái
 
-Đã triển khai giai đoạn 1–4: nền tảng, admin, trang giới thiệu/mục lục và trang đọc chương. Độc giả đọc không cần tài khoản ứng dụng; form gửi đánh giá và điểm trung bình thuộc giai đoạn 5.
+Đã triển khai giai đoạn 1–5: nền tảng, admin, trang truyện/đọc và đánh giá không tài khoản. Trang đọc cho chọn DejaVu Serif hoặc Times New Roman. Chưa phát hành Production; Preview giữ lớp bảo vệ Vercel.
 
 - [Kế hoạch và bàn giao](PLAN.md)
 - [Bố cục giao diện](docs/UI_SPEC.md)
 - [Kết quả kiểm tra giai đoạn 2](docs/STAGE_2_REPORT.md)
 - [Kết quả kiểm tra giai đoạn 3](docs/STAGE_3_REPORT.md)
 - [Kết quả kiểm tra giai đoạn 4](docs/STAGE_4_REPORT.md)
+- [Kết quả kiểm tra giai đoạn 5 và font](docs/STAGE_5_REPORT.md)
 - [Quy tắc agent](AGENTS.md)
 
 ## Chạy local
@@ -86,6 +87,8 @@ npm run test:e2e
 
 E2E chỉ chấp nhận schema `novel_preview`, dùng mật khẩu local mà không ghi vào log/trace, thử thay đổi dữ liệu rồi khôi phục trong `finally`. Chạy khi không có người khác sửa dữ liệu Preview. Test không dành cho Production. Kiểm tra ẩn đánh giá dùng fixture riêng tùy chọn trong `.local/e2e-review.json`; báo cáo giai đoạn 3 ghi nhận lần đã thử và dọn fixture đó.
 
+Test đánh giá tạo bản ghi có prefix ngẫu nhiên; `finally` ẩn đúng các bản ghi thử và ghi UUID vào `.local/stage5-review-fixtures.json`. Role ứng dụng không có DELETE reviews; dùng quyền quản trị cloud xóa đúng UUID trong manifest sau thử, không xóa theo tên chung hoặc xóa đánh giá thật. Lượt kiểm tra giai đoạn 5 đã dọn toàn bộ fixture.
+
 `/api/health` trả `{"status":"ok"}` khi đọc được đúng một bản ghi truyện, hoặc HTTP 503 với thông báo chung khi chưa sẵn sàng. Endpoint không trả chi tiết database, cấu hình hoặc secret.
 
 ## Đọc truyện
@@ -94,16 +97,24 @@ E2E chỉ chấp nhận schema `novel_preview`, dùng mật khẩu local mà kh�
 
 `/chuong/[id]` giữ xuống dòng, có chương trước/sau theo thứ tự các chương đã đăng và về mục lục. Cỡ chữ 18/20/22/24 px và nền sáng/tối được lưu tại `localStorage` với khóa `novel-reading-v1`; nếu không lưu được, điều khiển vẫn dùng được trong trang hiện tại. Chương nháp/không tồn tại trả 404, không gửi tiêu đề/nội dung nháp vào HTML hoặc metadata.
 
+Chọn **DejaVu Serif** (mặc định, đóng gói qua `next/font/local`) hoặc **Times New Roman** (font hệ thống). Thiết bị thiếu Times New Roman sẽ dùng DejaVu Serif; giao diện nêu rõ dự phòng. Không phân phối tệp font Windows. Lựa chọn font lưu cùng cỡ chữ/nền; dữ liệu cũ chưa có font tự dùng DejaVu, giữ nguyên tuỳ chọn còn lại. Xem [nguồn/giấy phép font](src/assets/fonts/README.md).
+
 Vùng nội dung chương chặn chọn chữ, copy/cut, kéo văn bản và menu chuột phải. Admin và ô nhập hoạt động bình thường; không chặn phím tắt toàn trang, cuộn, phóng to hoặc trình đọc màn hình. Đây là hạn chế sao chép thông thường, không thể chặn tuyệt đối trích xuất nội dung, chụp màn hình hoặc OCR.
 
 Trang công khai render theo request; `/api/chapters` dùng `no-store`, chỉ trả ID/thứ tự/tiêu đề published. React `cache()` chỉ khử truy vấn trùng trong lượt render, không lưu dữ liệu giữa request. Các thao tác admin vẫn gọi `revalidatePath` cho trang chủ và pattern trang đọc; sửa metadata truyện cũng làm mới metadata trang đọc.
 
+## Đánh giá không tài khoản
+
+Form dưới mục lục chỉ hỏi tên 1–50 ký tự và số sao 1–5; nhận xét tuỳ chọn tối đa 1.000 ký tự. Không email hoặc tài khoản. Lỗi giữ nội dung; gửi thành công cập nhật danh sách, số lượng và điểm trung bình. Chưa có đánh giá thì không hiển thị điểm 0/5 giả.
+
+`/api/reviews` validate ở server, kiểm tra origin, giới hạn body, honeypot và một lần/phút theo định danh IP được HMAC. Vercel chỉ tin header IP do nền tảng ghi; local dùng chung bucket. GET dùng `no-store`, chỉ trả đánh giá chưa ẩn, mới nhất trước, tải thêm 10 mỗi lượt. Cursor giữ microsecond + UUID để không bỏ sót đánh giá cùng thời điểm. Admin ẩn sẽ loại khỏi cả HTML, API và phép tính điểm ở lượt tải kế tiếp.
+
 ## Preview
 
-[Mở truyện Preview giai đoạn 4](https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app) · [Admin](https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication; đăng nhập tài khoản Vercel có quyền để xem. Chỉ `/admin` cần thêm mật khẩu admin Preview.
+[Mở truyện Preview giai đoạn 5](https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app) · [Admin](https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication; đăng nhập tài khoản Vercel có quyền để xem. Chỉ `/admin` cần thêm mật khẩu admin Preview.
 
 ```powershell
-npx --yes vercel@latest curl https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app/api/health --scope nguyenlionel
+npx --yes vercel@latest curl https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app/api/health --scope nguyenlionel
 ```
 
 Deploy tiếp theo mặc định là Preview:
@@ -116,6 +127,6 @@ npx --yes vercel@latest deploy --yes --scope nguyenlionel --project novel-platfo
 
 ## Giới hạn đã ghi nhận
 
-- Admin và trang đọc hoạt động với dữ liệu thật. Form đánh giá công khai sẽ tiếp tục ở giai đoạn 5.
+- Admin, trang đọc và đánh giá đã hoạt động với dữ liệu thật. Giai đoạn 6 là nghiệm thu tổng thể và phát hành theo ủy quyền.
 - `npm audit --omit=dev` không có vulnerability tại thời điểm kiểm tra. Full audit có advisory chưa có bản vá cho `braces` trong chuỗi dependency của ESLint/Next lint config, chỉ dùng lúc phát triển. Không chạy `npm audit fix --force` để hạ phiên bản framework; kiểm tra bản vá upstream khi cập nhật dependency.
 - Hạn chế copy đã áp dụng trong nội dung chương; không thể chặn tuyệt đối việc trích xuất nội dung đã gửi đến trình duyệt.

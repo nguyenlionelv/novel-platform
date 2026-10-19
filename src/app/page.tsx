@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { countPublishedChapters, getNovel, getPublishedChapterPage } from "@/lib/db/queries";
 import { ChapterList } from "@/components/reader/chapter-list";
+import { getPublicReviews } from "@/lib/db/reviews";
+import { Reviews } from "@/components/reviews/reviews";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [novel, chapterPage, count] = await Promise.all([getNovel(), getPublishedChapterPage(), countPublishedChapters()]);
+  const [novel, chapterPage, count, reviews] = await Promise.all([getNovel(), getPublishedChapterPage(), countPublishedChapters(), getPublicReviews()]);
   const first = chapterPage.chapters[0];
 
   return <main id="noi-dung" className="public-home mx-auto max-w-[1040px] px-4 pb-12 pt-8 sm:px-6 sm:pt-12">
@@ -33,6 +35,7 @@ export default async function HomePage() {
       <div className="public-section-heading"><div><p className="public-eyebrow">THEO TỪNG CHƯƠNG</p><h2 id="toc-heading" className="font-serif text-3xl">Mục lục</h2></div><span className="text-sm text-muted">{count} chương đã đăng</span></div>
       <ChapterList initialPage={chapterPage} />
     </section>
+    <Reviews initialPage={reviews} />
     <footer className="public-footer">Chúc bạn có những phút đọc truyện yên tĩnh.</footer>
   </main>;
 }

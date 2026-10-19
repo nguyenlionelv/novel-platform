@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getNovel, getPublishedChapter } from "@/lib/db/queries";
 import { Reader } from "@/components/reader/reader";
+import localFont from "next/font/local";
+
+const dejaVu = localFont({ src: "../../../assets/fonts/DejaVuSerif.ttf", variable: "--font-dejavu-serif", weight: "400", style: "normal", display: "swap", adjustFontFallback: false });
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
@@ -17,5 +20,5 @@ export default async function ChapterPage({ params }: Props) {
   const { id } = await params;
   const [novel, chapter] = await Promise.all([getNovel(), getPublishedChapter(id)]);
   if (!chapter) notFound();
-  return <Reader novelTitle={novel?.title || "Đọc truyện"} chapter={chapter} />;
+  return <Reader fontClassName={dejaVu.variable} novelTitle={novel?.title || "Đọc truyện"} chapter={chapter} />;
 }

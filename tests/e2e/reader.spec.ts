@@ -37,7 +37,7 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     expect(login.status()).toBe(200);
     const novelTitle = `${prefix} — Những ngày gió về`;
     expect((await admin.request.post("/api/admin/novel", { headers: { origin }, multipart: { title: novelTitle, author: "Tác giả kiểm thử", description: "Một câu chuyện nhỏ về những lần trở về.\nNội dung kiểm thử, sẽ được dọn sau khi chạy.", status: "ongoing" } })).status()).toBe(200);
-    const content = "Gió đi qua hàng cây, mang theo mùi hương của những ngày cũ.\n\nCô dừng lại trước hiên nhà. Cánh cửa vẫn mở, như thể chưa từng có cuộc chia xa nào.\n\n<script>window.__novelXss = 1</script>\nDòng cuối giữ nguyên xuống dòng.\n";
+    const content = "Gió đi qua hàng cây, mang theo mùi hương của những ngày cũ.\n\nCô dừng lại trước hiên nhà. Cánh cửa vẫn mở, như thể chưa từng có cuộc chia xa nào.\n\n" + "Tiếng Việt: Trường, Đường, Ước, ngỡ, chuyện, Nguyễn.".normalize("NFD") + "\n\n<script>window.__novelXss = 1</script>\nDòng cuối giữ nguyên xuống dòng.\n";
     const secondInput = { position: 2000000030, title: `${prefix} — Bên kia ô cửa`, content: "Mặt trời lên sau dãy núi.\n\nMột ngày mới bắt đầu.", intent: "publish" };
     const second = await save(secondInput);
     const hidden = await save({ position: 2000000020, title: `${prefix}-PRIVATE-TITLE`, content: `${prefix}-PRIVATE-CONTENT`, intent: "draft" });
@@ -70,6 +70,22 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     await expect(page).toHaveURL(new RegExp(`/chuong/${first.id}$`));
     await expect(page).toHaveTitle(`Chương ${firstInput.position}: ${firstInput.title} — ${novelTitle}`);
     const article = page.getByRole("article", { name: "Nội dung chương" });
+    await expect(page.getByLabel("Kiểu chữ", { exact: true })).toHaveValue("dejavu");
+    await page.evaluate(() => document.fonts.ready);
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("DOM.enable"); await cdp.send("CSS.enable");
+    async function renderedFonts() {
+      const { root } = await cdp.send("DOM.getDocument");
+      const { nodeId } = await cdp.send("DOM.querySelector", { nodeId: root.nodeId, selector: ".chapter-content" });
+      const { fonts } = await cdp.send("CSS.getPlatformFontsForNode", { nodeId });
+      return fonts.map(font => font.familyName);
+    }
+    expect([...new Set(await renderedFonts())]).toEqual(["DejaVu Serif"]);
+    await page.screenshot({ path: ".local/stage5-font-dejavu.png", fullPage: true });
+    await page.getByLabel("Kiểu chữ", { exact: true }).selectOption("times");
+    await expect(page.locator(".reader-page")).toHaveAttribute("data-font", "times");
+    expect(await renderedFonts()).toContain("Times New Roman");
+    await page.screenshot({ path: ".local/stage5-font-times.png", fullPage: true });
     expect(await article.textContent()).toBe(content);
     expect(await article.evaluate(element => getComputedStyle(element).whiteSpace)).toBe("pre-wrap");
     expect(await page.evaluate(() => "__novelXss" in window)).toBe(false);
@@ -84,6 +100,7 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     await page.getByRole("button", { name: "Chuyển sang nền tối" }).click();
     await expect(page.locator(".reader-page")).toHaveAttribute("data-theme", "dark");
     await page.reload();
+    await expect(page.getByLabel("Kiểu chữ", { exact: true })).toHaveValue("times");
     await expect(article).toHaveCSS("font-size", "24px");
     await expect(page.locator(".reader-page")).toHaveAttribute("data-theme", "dark");
     await page.setViewportSize({ width: 390, height: 844 });
@@ -110,6 +127,7 @@ test("published reading, private drafts, navigation, preferences, copy scope and
     await page.getByRole("link", { name: "Chương sau →", exact: true }).click();
     await expect(page.getByRole("heading", { name: secondInput.title, exact: true })).toBeVisible();
     await expect(page.getByRole("article")).toHaveCSS("font-size", "18px");
+    await expect(page.getByLabel("Kiểu chữ", { exact: true })).toHaveValue("times");
     await expect(page.getByRole("link", { name: "← Chương trước", exact: true })).toHaveAttribute("href", `/chuong/${first.id}`);
     await expect(page.getByRole("button", { name: "Chương sau →", exact: true })).toBeDisabled();
     await page.getByRole("link", { name: "Mục lục", exact: true }).click();

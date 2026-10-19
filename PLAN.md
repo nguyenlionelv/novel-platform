@@ -164,15 +164,18 @@ Thực hiện theo thứ tự:
 
 Thực hiện theo thứ tự:
 
-1. [ ] Đặt form dưới mục lục: tên bắt buộc, số sao 1–5 bắt buộc, nhận xét tùy chọn; không hỏi email hoặc yêu cầu đăng nhập.
-2. [ ] Kiểm tra tại server: tên sau khi bỏ khoảng trắng 1–50 ký tự, nhận xét tối đa 1.000 ký tự, sao là số nguyên 1–5.
-3. [ ] Thêm chống gửi dồn dập ở server, ví dụ giới hạn một lần/phút theo định danh chống spam đã băm, cùng trường honeypot; không thêm CAPTCHA ngoài khi chưa có nhu cầu.
-4. [ ] Lưu đánh giá vào database; hiển thị tên, sao, nhận xét và ngày gửi; văn bản không được thực thi HTML/script.
-5. [ ] Hiển thị điểm trung bình và số đánh giá đang hiển thị; khi chưa có đánh giá thì hiển thị trạng thái trống. Dùng tải thêm/phân trang khi danh sách dài.
-6. [ ] Nối thao tác admin ẩn đánh giá; cập nhật danh sách, số lượng và điểm trung bình sau gửi/ẩn.
-7. [ ] Thử gửi hợp lệ, tên rỗng, sao sai, nhận xét quá dài và gửi liên tục; tải lại để xác nhận dữ liệu còn.
+1. [x] Đặt form dưới mục lục: tên bắt buộc, số sao 1–5 bắt buộc, nhận xét tùy chọn; không hỏi email hoặc yêu cầu đăng nhập.
+2. [x] Kiểm tra tại server: tên sau khi bỏ khoảng trắng 1–50 ký tự, nhận xét tối đa 1.000 ký tự, sao là số nguyên 1–5.
+3. [x] Thêm chống gửi dồn dập ở server, giới hạn một lần/phút theo định danh chống spam đã băm, cùng trường honeypot; không thêm CAPTCHA ngoài.
+4. [x] Lưu đánh giá vào database; hiển thị tên, sao, nhận xét và ngày gửi; văn bản không được thực thi HTML/script.
+5. [x] Hiển thị điểm trung bình và số đánh giá đang hiển thị; khi chưa có đánh giá thì hiển thị trạng thái trống. Tải thêm 10 đánh giá mỗi lượt bằng cursor có microsecond và UUID.
+6. [x] Nối thao tác admin ẩn đánh giá; cập nhật danh sách, số lượng và điểm trung bình sau gửi/ẩn.
+7. [x] Thử gửi hợp lệ, tên rỗng, sao sai, nhận xét quá dài và gửi liên tục; tải lại để xác nhận dữ liệu còn.
+8. [x] Theo yêu cầu bổ sung: sửa font đọc, cho chọn DejaVu Serif/Times New Roman, lưu tuỳ chọn, giữ tiếng Việt và xuống dòng; DejaVu đóng gói cùng web, Times dùng font hệ thống có dự phòng.
 
 Đầu ra: độc giả gửi đánh giá bằng tên, không cần tài khoản; admin xử lý được spam cơ bản.
+
+Đã hoàn thành trên local và HTTPS Preview: https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app. Xem `docs/STAGE_5_REPORT.md`; đã kiểm tra gửi/lưu lại/chặn gửi liên tục/ẩn và điểm, hai font thật trên Edge. Fixture đã dọn theo UUID; không sửa truyện/chương sẵn có.
 
 Điều kiện chuyển giai đoạn: form, danh sách và điểm trung bình đúng; đánh giá đã ẩn không còn xuất hiện hoặc được tính điểm.
 
@@ -234,13 +237,14 @@ Thực hiện theo thứ tự:
 
 ## 8. Bàn giao giữa các chat
 
-- Trạng thái: hoàn thành giai đoạn 1–4; admin và trang đọc dùng dữ liệu thật. Preview cuối READY, đọc/nháp/cache và browser mobile với điều khiển sẵn sàng tương tác đã kiểm tra trên HTTPS. Không phát hành Production.
+- Trạng thái: hoàn thành giai đoạn 1–5; admin, trang đọc và đánh giá không tài khoản dùng dữ liệu thật. Có hai kiểu chữ theo yêu cầu mới; Preview giai đoạn 5 READY và browser HTTPS qua. Không phát hành Production.
 - Đã có: phạm vi một truyện, admin mật khẩu riêng, đọc công khai, đánh giá không tài khoản, hạn chế sao chép thông thường; giai đoạn 0 chuẩn bị và bảy giai đoạn triển khai có bước làm, đầu ra, điều kiện hoàn thành.
-- File hiện tại: trang chủ `src/app/page.tsx`, đọc `src/app/chuong/[id]/page.tsx`, 404 `src/app/not-found.tsx`, API mục lục `src/app/api/chapters/route.ts`, UI đọc `src/components/reader/`, kiểu/tuỳ chọn `src/lib/reader/`, query published ở `src/lib/db/queries.ts`; admin giữ nguyên vị trí ở giai đoạn 3. Có E2E admin/reader và unit preferences. Xem `docs/STAGE_4_REPORT.md`. Repository local nhánh `main`, chưa có remote.
+- File mới giai đoạn 5: `src/components/reviews/reviews.tsx`, `src/app/api/reviews/route.ts`, `src/lib/db/reviews.ts`, `src/lib/reviews/`, `src/lib/security/request-identifier.ts`; font ở `src/assets/fonts/` và license công khai `public/fonts/`. Trang đọc/reader/preferences đã cập nhật select font. Tests admin/reader/reviews và unit validation/preferences. Xem `docs/STAGE_5_REPORT.md`. Repository local nhánh `main`, chưa có remote.
 - Ràng buộc mới nhất: không build Docker trên máy người dùng; đã ghi quy tắc trong `AGENTS.md` và phần công nghệ của kế hoạch.
 - Lựa chọn mới: người dùng từ chối Neon, chọn Supabase và cho phép tạo project riêng `novel-platform` trong `nguyenlionelv's Org`; ref `fbtpriygrhtalsblzbhh`, Singapore. Vercel project `nguyenlionel/novel-platform`, Blob `novel-platform-covers`.
-- Kiểm tra giai đoạn 4: lint/typecheck/build qua, 6/6 unit; E2E admin + reader 2/2 qua (41,1 giây), reader sau bổ sung qua (17,6 giây). Đã thử Đọc từ đầu, thứ tự/biên/nháp, text an toàn/giữ dòng, 30 chương/lượt và retry, cache update/gỡ/đăng lại/xóa, font/sáng tối/lưu hoặc chặn storage, copy chỉ vùng article, bàn phím, CSS zoom 200%, mobile sáng/tối không tràn. HTTPS Preview API/đọc/404/cache qua; browser Preview cũng đã mở và dùng điều khiển thật. Tất cả fixture đã dọn; Preview còn 1 chương sẵn có của người dùng, Production 0. Không sửa chương sẵn có. Form/điểm đánh giá công khai chưa triển khai.
-- Quy tắc tiếp tục: query mới dùng `withDb` giữ riêng kết nối và chờ tuần tự trong callback, pool tối đa 2; không pipeline SQL trên cùng handle. `getNovel`/`getPublishedChapter` dùng React cache trong lượt render; home/reader dynamic, public API no-store. Bảo vệ copy chỉ article; không đặt listener chặn toàn trang. Đã có thông tin truyện và một chương người dùng nhập, không ghi đè hoặc dọn theo trạng thái rỗng cũ. Dev/build Webpack, không Docker. Chưa chạy lại audit ở giai đoạn 4; advisory lint dependency vẫn như báo cáo giai đoạn 2.
+- Kiểm tra giai đoạn 5: lint/typecheck/build qua, 8/8 unit; E2E admin qua, reader/font qua (lần cuối có dấu tổ hợp NFD 30,2 giây), review qua sau sửa cursor (13,3 giây). Review đã thử input sai, honeypot, 403/413/429, mất mạng giữ form, gửi/reload, một thành công khi gửi đồng thời, IP giả local không vượt giới hạn, ẩn/tính điểm, phân trang cùng timestamp. CDP xác nhận font thật, DejaVu có đủ ký tự tiếng Việt, font lưu qua reload/chuyển chương. Browser HTTPS gửi/ẩn/điểm/rate limit và hai font qua, mobile không tràn/lỗi JS. Security advisors không cảnh báo. Fixture đã dọn theo UUID; Preview còn 1 chương sẵn có, 0 review; Production 0 chương/0 review.
+- Quy tắc tiếp tục: query qua `withDb`, không pipeline trên cùng handle; React cache chỉ trong lượt render, home/reader dynamic, API no-store. Cursor review giữ đủ microsecond + UUID, bind thời gian qua `text::timestamptz` để tránh driver Date rút còn millisecond. Chỉ review chưa ẩn được liệt kê/tính điểm. Không cấp DELETE review cho role app: E2E ẩn fixture, ghi ID vào `.local/stage5-review-fixtures.json`, sau đó quản trị cloud xóa đúng UUID. Có nội dung thật, không ghi đè hoặc dọn theo trạng thái rỗng cũ. Dev/build Webpack, không Docker; chưa chạy lại audit.
+- Font mới đã chốt: DejaVu Serif mặc định đóng gói Next local, Times New Roman dùng font hệ thống và dự phòng DejaVu nếu thiếu. Không phát lại font Windows. Field `font` trong `novel-reading-v1`; dữ liệu cũ thiếu font tự chọn DejaVu, không mất cỡ chữ/nền. Đã cập nhật `AGENTS.md`, `UI_SPEC.md` và giấy phép nguồn; không quay về Georgia.
 - Secrets: đã đồng bộ Development/Preview/Production. Chỉ đọc tên biến và trạng thái, không in giá trị. Mật khẩu admin ban đầu ở `.local/admin-access.txt`, bị ignore. File CA Supabase là certificate công khai, không phải secret.
-- Preview giai đoạn 4: https://novel-platform-b3g0haf1c-nguyenlionel.vercel.app, giữ Vercel Authentication; deployment `dpl_8ouoBA2zyCHEihZU61wmPFnA2tuk`, inspect target preview/READY, build 44 giây, Functions sin1. Browser mobile production runtime qua: mở truyện/chương, cỡ chữ/nền tối và lưu qua reload, không tràn hoặc lỗi JS. Kiểm tra HTTPS hai chương tạm/nháp/cache ở bản giai đoạn 4 trước lần bổ sung nút chờ hydration cũng qua. Local dev cổng 3100 còn chạy; kiểm tra listener trước khi khởi động thêm. CLI 64.5.0 dùng cache `.local/npm-cache`. Không có remote Git và chưa phát hành Production.
-- Bước tiếp theo sau khi người dùng giao: giai đoạn 5, form đánh giá tên + sao + nhận xét tuỳ chọn, validate/chống spam bằng rate limit database hiện có; hiển thị danh sách/điểm trung bình chỉ từ review chưa ẩn và nối cập nhật sau gửi/ẩn. Dùng UI_SPEC, không thêm tài khoản độc giả hoặc dịch vụ mới. Không tạo lại project/database. Phạm vi turn này là giai đoạn 4.
+- Preview giai đoạn 5: https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app, giữ Vercel Authentication; deployment `dpl_2jtKGJsokApSizM6H9zCCjUZEMAE`, inspect preview/READY, build 38 giây, Functions sin1. Dùng URL mới để thấy font/review mới; URL deployment cũ giữ mã cũ. Local dev cổng 3100 còn chạy; kiểm tra listener trước khi khởi động thêm. CLI 64.5.0 dùng cache `.local/npm-cache`. Không có remote Git, chưa phát hành Production.
+- Bước tiếp theo sau khi người dùng giao: giai đoạn 6, nghiệm thu tổng thể theo checklist và chuẩn bị phát hành Production trong phạm vi được ủy quyền. Giữ dữ liệu Preview/Production tách biệt, không đưa fixture vào nội dung thật hoặc đổi sang project Writing. Không thêm tài khoản độc giả/dịch vụ/migration khi chưa cần. Phạm vi turn này là giai đoạn 5 và bổ sung font theo yêu cầu.
