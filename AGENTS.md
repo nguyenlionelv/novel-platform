@@ -4,7 +4,7 @@
 
 ## 1. Bắt đầu hoặc tiếp tục ở chat/tab mới
 
-1. Đọc file này, sau đó đọc `PLAN.md`, đặc biệt mục **Bàn giao giữa các chat** và checklist nghiệm thu.
+1. Đọc file này, sau đó đọc `PLAN.md`, đặc biệt mục **Bàn giao giữa các chat** và checklist nghiệm thu. Khi làm giao diện, đọc `docs/UI_SPEC.md` để dùng bố cục và hành vi đã chốt ở giai đoạn 1.
 2. Kiểm tra file thực tế, `package.json` và trạng thái Git nếu đã có repository. Không giả định công việc đã xong chỉ từ ghi chú.
 3. Xác định phần đã làm, phần đang dở, kết quả kiểm tra và bước tiếp theo. Không khởi tạo lại hay ghi đè mã hiện có.
 4. Làm theo yêu cầu mới nhất của người dùng. Khi người dùng đổi phạm vi, cập nhật tài liệu liên quan để chat sau không quay về yêu cầu cũ.
@@ -37,11 +37,15 @@ Không tự mở rộng thành nền tảng nhiều truyện. Không tự thêm 
 ## 4. Kiến trúc tối thiểu
 
 - Next.js + TypeScript + Tailwind CSS; frontend và backend cùng dự án, chạy trên Vercel.
-- Neon PostgreSQL lưu dữ liệu; Vercel Blob lưu ảnh bìa.
+- Supabase PostgreSQL trong project riêng `novel-platform` lưu dữ liệu; Vercel Blob lưu ảnh bìa. Người dùng đã chọn Supabase thay Neon; không cài hoặc tạo Neon.
+- Development/Preview dùng schema `novel_preview`, Production dùng `novel_production`, mỗi schema có role ứng dụng riêng. Không đổi sang project Supabase Writing hoặc cho role này truy cập schema kia.
+- Dùng driver `postgres` ở server qua transaction pooler, tắt prepared statements, giữ xác minh TLS bằng CA công khai ở `src/lib/db/supabase-ca.json`. Không cần Supabase Auth hoặc service-role key cho luồng hiện tại.
+- Secrets và mật khẩu admin local ở `.env.local`/`.local/`, luôn bị loại khỏi Git và deployment. Không in hoặc đưa vào tài liệu bàn giao.
 - Ba bảng nghiệp vụ: `novels`, `chapters`, `reviews`. Chỉ một truyện trong giao diện; giữ `novel_id` trong chương/đánh giá để nâng cấp sau.
 - Không thêm dịch vụ tài khoản, Redis, backend riêng hoặc thư viện nặng nếu chức năng hiện tại không cần.
 - Không dùng filesystem của Vercel Functions hoặc biến trong bộ nhớ làm nơi lưu dữ liệu bền vững.
 - Kiểm tra package và tài liệu phù hợp phiên bản thực tế trước khi dùng API; không tự nâng cấp framework hoặc thay stack.
+- Dùng `npm run dev`/`npm run build` hiện có (Webpack). Turbopack đã gặp lỗi tạo tiến trình trên Windows; không tự đổi lại hoặc dùng Docker để xử lý.
 - Dùng tích hợp và dữ liệu thật cho luồng hoàn chỉnh. Dữ liệu mẫu chỉ để thử, phải được ghi rõ; không báo đã tích hợp nếu mới có giao diện giả lập.
 
 ## 5. Yêu cầu bắt buộc khi triển khai
@@ -58,6 +62,8 @@ Không tự mở rộng thành nền tảng nhiều truyện. Không tự thêm 
 
 ## 6. Cách thực hiện công việc
 
+- **Không build Docker trên máy của người dùng.** Không chạy `docker build`, `docker buildx build`, `docker compose build`, `docker compose up --build` hoặc script/công cụ khác kích hoạt build image cục bộ, kể cả thông qua WSL hoặc Docker Desktop.
+- Phát triển và kiểm tra bằng Node.js/package manager trực tiếp; deploy bằng quy trình Vercel. Kiểm tra script trước khi chạy để tránh build Docker gián tiếp. Nếu một bước bắt buộc cần build image, ghi rõ vướng mắc và chuyển sang phương án build từ xa khi đã được ủy quyền; không tự build trên máy người dùng.
 - Làm từng giai đoạn trong `PLAN.md`, ưu tiên luồng hoàn chỉnh: admin đăng → độc giả đọc → độc giả đánh giá.
 - Tự quyết định các chi tiết nhỏ, có thể đảo ngược; không hỏi lại các yêu cầu đã chốt.
 - Chỉ hỏi khi thiếu thông tin thực sự chặn bước tiếp theo, cần quyền truy cập hoặc quyết định làm thay đổi phạm vi/chi phí. Trong lúc chờ, tiếp tục phần độc lập nếu có.
@@ -88,3 +94,13 @@ Cập nhật mục **Bàn giao giữa các chat** trong `PLAN.md` sau mỗi ph�
 - Bước cụ thể tiếp theo để agent ở chat mới tiếp tục ngay.
 
 Không ghi secret vào tài liệu bàn giao. Không đánh dấu hoàn thành toàn dự án khi mới xong kế hoạch, giao diện mẫu hoặc khi hết thời gian. Khi kết thúc, trả lời ngắn gọn bằng tiếng Việt, kèm liên kết file/URL cần thiết.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

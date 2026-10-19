@@ -47,7 +47,8 @@ Cập nhật: 19/10/2026. Kế hoạch này thay thế hoàn toàn phạm vi tr�
 
 - Next.js + TypeScript + Tailwind CSS; giao diện và backend cùng một dự án.
 - Vercel để triển khai ứng dụng.
-- Neon PostgreSQL để lưu truyện, chương và đánh giá.
+- Không build Docker trên máy người dùng, kể cả qua script, WSL hay Docker Desktop. Chạy dev/kiểm tra trực tiếp bằng Node.js; dùng quy trình build/deploy của Vercel.
+- Supabase PostgreSQL trong project mới `novel-platform` để lưu truyện, chương và đánh giá. Người dùng đã chọn Supabase thay Neon khi bắt đầu giai đoạn 2.
 - Vercel Blob để lưu ảnh bìa tải lên từ admin.
 - Không cần dịch vụ tài khoản độc giả, Redis, trình soạn thảo phức tạp hoặc backend riêng.
 - Mật khẩu admin lưu dạng hash trong biến môi trường server. Phiên dùng cookie được ký, HttpOnly, Secure trên production và có hạn sử dụng.
@@ -67,7 +68,7 @@ Cập nhật: 19/10/2026. Kế hoạch này thay thế hoàn toàn phạm vi tr�
 | Giai đoạn | Thời lượng | Công việc theo thứ tự | Kết quả cần đạt |
 | --- | --- | --- | --- |
 | 1. Chốt bố cục | 30 phút | Chốt ba màn hình, màu/chữ mặc định, form đánh giá và thông tin truyện | Có bố cục đủ rõ để làm ngay |
-| 2. Dựng nền tảng | 1 giờ | Tạo Next.js; liên kết Vercel; tạo Neon và Blob; cấu hình biến môi trường; tạo ba bảng và một bản ghi truyện | Preview chạy và kết nối dữ liệu thật |
+| 2. Dựng nền tảng | 1 giờ | Tạo Next.js; liên kết Vercel; tạo project Supabase riêng và Blob; cấu hình biến môi trường; tạo ba bảng và một bản ghi truyện | Preview chạy và kết nối dữ liệu thật |
 | 3. Làm admin | 2 giờ | Mật khẩu; sửa truyện/bìa; thêm/sửa chương; lưu nháp/đăng/gỡ/xóa; ẩn đánh giá | Chủ website tự đăng và cập nhật chương được |
 | 4. Làm trang độc giả | 1 giờ 30 phút | Trang chủ một truyện; mục lục; đọc chương; điều hướng; cỡ chữ/sáng tối; responsive; hạn chế sao chép nội dung chương | Khách đọc liên tục được, có chặn copy thông thường |
 | 5. Làm đánh giá | 1 giờ | Form tên + sao + nhận xét; lưu database; danh sách và điểm trung bình; chống spam cơ bản | Gửi đánh giá không cần đăng nhập |
@@ -91,13 +92,15 @@ Kết quả: repository sẵn sàng lưu lịch sử. Mốc Git ban đầu lưu 
 
 Thực hiện theo thứ tự:
 
-1. [ ] Kiểm tra workspace và tài liệu; xác định tên truyện, tác giả, giới thiệu, bìa và nội dung đã có. Nếu thiếu, ghi rõ để nhập sau, không bịa nội dung thật.
-2. [ ] Chọn một phong cách gọn: nền sáng, chữ dễ đọc, một màu nhấn; trang đọc có sáng/tối.
-3. [ ] Chốt trang chủ: bìa/thông tin → nút đọc → mục lục → đánh giá.
-4. [ ] Chốt trang đọc: tiêu đề → nội dung → chương trước/sau và mục lục.
-5. [ ] Chốt admin: thông tin truyện, danh sách chương, form sửa chương, danh sách đánh giá; dùng các khu vực đơn giản trong cùng trang nếu phù hợp.
+1. [x] Kiểm tra workspace và tài liệu; xác định tên truyện, tác giả, giới thiệu, bìa và nội dung đã có. Nếu thiếu, ghi rõ để nhập sau, không bịa nội dung thật.
+2. [x] Chọn một phong cách gọn: nền sáng, chữ dễ đọc, một màu nhấn; trang đọc có sáng/tối.
+3. [x] Chốt trang chủ: bìa/thông tin → nút đọc → mục lục → đánh giá.
+4. [x] Chốt trang đọc: tiêu đề → nội dung → chương trước/sau và mục lục.
+5. [x] Chốt admin: thông tin truyện, danh sách chương, form sửa chương, danh sách đánh giá; dùng các khu vực đơn giản trong cùng trang nếu phù hợp.
 
 Đầu ra: bố cục và trường dữ liệu đủ rõ để code; không cần Figma hay nhiều vòng thiết kế.
+
+Đã hoàn thành bằng `docs/UI_SPEC.md`: wireframe văn bản cho ba màn hình, màu/chữ/kích thước, responsive, trường form, trạng thái và hành vi. Tên truyện, tác giả, giới thiệu, bìa và chương chưa được cung cấp; có thể nhập từ admin sau, không chặn giai đoạn 2.
 
 Điều kiện chuyển giai đoạn: ba màn hình đã xác định, không thêm chức năng ngoài phạm vi.
 
@@ -105,16 +108,18 @@ Thực hiện theo thứ tự:
 
 Thực hiện theo thứ tự:
 
-1. [ ] Kiểm tra Node/package manager; tạo ứng dụng Next.js + TypeScript + Tailwind ngay trong repository, giữ nguyên `AGENTS.md`, `PLAN.md` và lịch sử Git.
-2. [ ] Liên kết dự án Vercel, tạo/kết nối Neon và Blob bằng tích hợp thật. Xử lý quyền truy cập theo ủy quyền hiện có; không tự đăng ký gói trả phí.
-3. [ ] Cấu hình biến môi trường local/preview/production phù hợp; chỉ commit `.env.example` chứa tên biến và giá trị mẫu không bí mật.
-4. [ ] Tạo migration cho ba bảng nghiệp vụ. Chương và đánh giá tham chiếu truyện; thứ tự chương là duy nhất trong truyện; số sao giới hạn 1–5.
-5. [ ] Bảo đảm ứng dụng chỉ quản lý một bản ghi truyện, dùng thao tác khởi tạo có thể chạy lại mà không tạo truyện trùng hoặc ghi đè nội dung đã nhập.
-6. [ ] Tạo lớp truy cập database ở server và cơ chế phiên admin bằng thư viện/API phù hợp; không để secret hoặc database client vào mã trình duyệt.
-7. [ ] Chuẩn bị lưu giới hạn tần suất thử mật khẩu/gửi đánh giá bằng database hiện tại. Nếu cần bảng kỹ thuật nhỏ thì ghi rõ; vẫn chỉ có ba bảng nghiệp vụ.
-8. [ ] Chạy ứng dụng và kiểm tra đọc/ghi database; deploy preview để xác nhận môi trường Vercel kết nối được.
+1. [x] Kiểm tra Node/package manager; tạo ứng dụng Next.js + TypeScript + Tailwind ngay trong repository, giữ nguyên `AGENTS.md`, `PLAN.md` và lịch sử Git.
+2. [x] Liên kết dự án Vercel; theo lựa chọn mới của người dùng, tạo project Supabase riêng trong organization của họ và Blob thật. Không tạo Neon hoặc đăng ký gói trả phí.
+3. [x] Cấu hình biến môi trường local/preview/production phù hợp; chỉ theo dõi `.env.example` chứa tên biến và giá trị mẫu không bí mật.
+4. [x] Tạo migration cho ba bảng nghiệp vụ. Chương và đánh giá tham chiếu truyện; thứ tự chương là duy nhất trong truyện; số sao giới hạn 1–5.
+5. [x] Bảo đảm ứng dụng chỉ quản lý một bản ghi truyện, dùng thao tác khởi tạo có thể chạy lại mà không tạo truyện trùng hoặc ghi đè nội dung đã nhập.
+6. [x] Tạo lớp truy cập database ở server và cơ chế phiên admin bằng thư viện/API phù hợp; không để secret hoặc database client vào mã trình duyệt.
+7. [x] Chuẩn bị lưu giới hạn tần suất thử mật khẩu/gửi đánh giá bằng bảng kỹ thuật `rate_limits` trong từng schema; vẫn chỉ có ba bảng nghiệp vụ.
+8. [x] Chạy ứng dụng và kiểm tra đọc/ghi database; deploy preview để xác nhận môi trường Vercel kết nối được.
 
 Đầu ra: ứng dụng khởi động được, database và lưu trữ thật đã sẵn sàng, có hướng dẫn thiết lập local.
+
+Đã hoàn thành: xem `README.md` và `docs/STAGE_2_REPORT.md`. Preview: https://novel-platform-hirbix45q-nguyenlionel.vercel.app. Development/Preview dùng `novel_preview`, Production dùng `novel_production`, role và secret riêng; không dùng project Supabase Writing. Giai đoạn 2 chỉ có trang nền tảng và health API, chưa có tính năng admin/đọc/đánh giá.
 
 Điều kiện chuyển giai đoạn: dữ liệu thử đọc/ghi được và không có secret trong file Git theo dõi. Nếu thiếu quyền dịch vụ, ghi rõ bước bị chặn; không tuyên bố đã tích hợp bằng dữ liệu giả.
 
@@ -220,14 +225,18 @@ Thực hiện theo thứ tự:
 ## 7. Tài liệu triển khai
 
 - [Next.js trên Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs)
-- [Neon qua Vercel Marketplace](https://vercel.com/marketplace/neon)
+- [Kết nối PostgreSQL Supabase](https://supabase.com/docs/guides/database/connecting-to-postgres)
 - [Vercel Blob](https://vercel.com/docs/vercel-blob)
 
 ## 8. Bàn giao giữa các chat
 
-- Trạng thái: đã khởi tạo Git nhánh `main`, có quy tắc agent và kế hoạch chi tiết; chưa triển khai ứng dụng.
+- Trạng thái: hoàn thành giai đoạn 1–2; Next.js, database và Preview chạy được. Chưa bắt đầu giai đoạn 3.
 - Đã có: phạm vi một truyện, admin mật khẩu riêng, đọc công khai, đánh giá không tài khoản, hạn chế sao chép thông thường; giai đoạn 0 chuẩn bị và bảy giai đoạn triển khai có bước làm, đầu ra, điều kiện hoàn thành.
-- File hiện tại: `PLAN.md`, `AGENTS.md` và `.gitignore`. Repository local, chưa có remote.
-- Kiểm tra: đã xác nhận Git khởi tạo tại đúng thư mục; đối chiếu lịch triển khai tổng 8 giờ. Chưa có ứng dụng nên chưa có build hoặc kiểm thử chạy ứng dụng.
-- Vướng mắc: chưa phát sinh; nội dung truyện, bìa và quyền truy cập dịch vụ cần được xác định khi triển khai.
-- Bước tiếp theo: khi người dùng yêu cầu triển khai, đọc `AGENTS.md`, kiểm tra Git và bắt đầu giai đoạn 1, sau đó giai đoạn 2. Yêu cầu hiện tại là khởi tạo Git và chi tiết hóa kế hoạch, chưa phải lệnh triển khai ứng dụng.
+- File hiện tại: ứng dụng ở `src/`, migration ở `supabase/migrations/`, script kiểm tra ở `scripts/`, tests ở `tests/`, cấu hình Next.js/Vercel, `README.md` và `docs/STAGE_2_REPORT.md`. Repository local nhánh `main`, chưa có remote.
+- Ràng buộc mới nhất: không build Docker trên máy người dùng; đã ghi quy tắc trong `AGENTS.md` và phần công nghệ của kế hoạch.
+- Lựa chọn mới: người dùng từ chối Neon, chọn Supabase và cho phép tạo project riêng `novel-platform` trong `nguyenlionelv's Org`; ref `fbtpriygrhtalsblzbhh`, Singapore. Vercel project `nguyenlionel/novel-platform`, Blob `novel-platform-covers`.
+- Kiểm tra: lint/typecheck/build qua; 2/2 test mật khẩu/origin qua; database smoke read-write rollback qua; cách ly schema và RLS qua; Blob upload/đọc metadata/xóa ảnh thử qua; security advisors không cảnh báo; local HTTP 200 và Preview health `ok`, trang chủ trạng thái trống đúng. Chưa kiểm thử UI admin/đọc/đánh giá vì chưa triển khai.
+- Vướng mắc: chưa có nội dung truyện/bìa thật, không chặn giai đoạn 3. Dev/build dùng Webpack do lỗi Turbopack Windows. Advisory chưa có bản vá chỉ ở dependency lint đã ghi trong báo cáo; runtime audit không có vulnerability.
+- Secrets: đã đồng bộ Development/Preview/Production. Chỉ đọc tên biến và trạng thái, không in giá trị. Mật khẩu admin ban đầu ở `.local/admin-access.txt`, bị ignore. File CA Supabase là certificate công khai, không phải secret.
+- Preview: https://novel-platform-hirbix45q-nguyenlionel.vercel.app, giữ Vercel Authentication. Bản deploy đầu tự gán Production đã được gỡ alias mới; chi tiết trong báo cáo. Local dev đã khởi động trên cổng 3100; kiểm tra listener trước khi khởi động thêm.
+- Bước tiếp theo: thực hiện giai đoạn 3 theo `PLAN.md`, dùng `docs/UI_SPEC.md` và module `src/lib/auth`, `src/lib/security`, `src/lib/db`; không tự tạo lại project/database. Phạm vi turn này chỉ triển khai giai đoạn 2.

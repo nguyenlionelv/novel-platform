@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: #faf8f3;
+  --color-ink: #202923;
+  --color-muted: #59635d;
+  --color-accent: #245846;
+  --font-sans: system-ui, sans-serif;
+}
+
+body { background: var(--color-paper); color: var(--color-ink); }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 4px;
+}
