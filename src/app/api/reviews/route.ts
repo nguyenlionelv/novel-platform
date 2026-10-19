@@ -24,6 +24,7 @@ export async function POST(request: Request) {
     if (!await consumeRateLimit("review", requestIdentifier(request))) return json({ error: "Bạn vừa gửi đánh giá. Vui lòng đợi một phút trước khi gửi tiếp." }, 429);
     await createReview(input);
     revalidatePath("/");
+    revalidatePath("/chuong/[id]", "page");
     return json({ ok: true }, 201);
   } catch (error) { return failure(error); }
 }

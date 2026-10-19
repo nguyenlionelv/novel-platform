@@ -7,7 +7,7 @@ Cập nhật: 19/10/2026. Kế hoạch này thay thế hoàn toàn phạm vi tr�
 - Website có đúng một truyện; trang chủ chính là trang giới thiệu truyện đó.
 - Có trang đọc từng chương và trang admin để chủ website đăng/sửa nội dung.
 - Độc giả không cần tài khoản để đọc hoặc gửi đánh giá.
-- Đánh giá: tên hiển thị, số sao 1–5 và lời nhận xét tùy chọn; hiển thị dưới mục lục ở trang truyện.
+- Đánh giá: tên hiển thị, số sao 1–5 và lời nhận xét tùy chọn; hiển thị dưới nội dung ở mọi trang đọc, dùng chung theo truyện; không hiển thị tại trang chủ.
 - Admin dùng một mật khẩu riêng; không có đăng ký hay hệ thống tài khoản người dùng.
 - Khi có thêm truyện mới mới mở rộng giao diện và chức năng.
 - Nội dung chương có biện pháp hạn chế sao chép thông thường; không cam kết chống sao chép tuyệt đối trên trình duyệt.
@@ -18,14 +18,15 @@ Cập nhật: 19/10/2026. Kế hoạch này thay thế hoàn toàn phạm vi tr�
 
 - Ảnh bìa, tên truyện, tác giả, giới thiệu và trạng thái đang viết/hoàn thành.
 - Nút Đọc từ đầu và danh sách chương đã đăng.
-- Bên dưới là điểm trung bình, danh sách đánh giá và form gửi đánh giá.
+- Không hiển thị khối đánh giá tại trang chủ; độc giả đánh giá từ trang đọc.
 - Giao diện gọn, ưu tiên điện thoại.
 
 ### Trang đọc `/chuong/[id]`
 
 - Tên truyện, số chương, tiêu đề và nội dung chương.
-- Nút chương trước, chương sau và trở lại mục lục.
-- Điều chỉnh cỡ chữ và nền sáng/tối; lưu lựa chọn trên trình duyệt.
+- Nút chương trước/sau ở dưới tiêu đề và cuối chương; mục lục kéo ra/vào bên trái.
+- Thanh trên có Tuỳ chọn đọc (bên phải: cỡ chữ, font, nền, giãn dòng, độ rộng khung) và mũi tên xuống cuối chương. Lưu lựa chọn trên trình duyệt.
+- Tên truyện lớn, tiêu đề chương cùng font nội dung. Đánh giá chung của truyện nằm dưới mỗi chương.
 - Chỉ truy cập được chương đã đăng.
 - Chặn chọn chữ, kéo thả văn bản, sự kiện copy/cut và menu chuột phải trong vùng nội dung chương.
 - Chỉ áp dụng vào nội dung đọc; admin, form đánh giá và các ô nhập liệu vẫn chọn/copy/paste bình thường.
@@ -164,7 +165,7 @@ Thực hiện theo thứ tự:
 
 Thực hiện theo thứ tự:
 
-1. [x] Đặt form dưới mục lục: tên bắt buộc, số sao 1–5 bắt buộc, nhận xét tùy chọn; không hỏi email hoặc yêu cầu đăng nhập.
+1. [x] Đặt form dưới nội dung mỗi chương, dùng chung theo truyện (yêu cầu bổ sung trước giai đoạn 6): tên bắt buộc, số sao 1–5 bắt buộc, nhận xét tùy chọn; không hỏi email hoặc yêu cầu đăng nhập.
 2. [x] Kiểm tra tại server: tên sau khi bỏ khoảng trắng 1–50 ký tự, nhận xét tối đa 1.000 ký tự, sao là số nguyên 1–5.
 3. [x] Thêm chống gửi dồn dập ở server, giới hạn một lần/phút theo định danh chống spam đã băm, cùng trường honeypot; không thêm CAPTCHA ngoài.
 4. [x] Lưu đánh giá vào database; hiển thị tên, sao, nhận xét và ngày gửi; văn bản không được thực thi HTML/script.
@@ -178,6 +179,18 @@ Thực hiện theo thứ tự:
 Đã hoàn thành trên local và HTTPS Preview: https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app. Xem `docs/STAGE_5_REPORT.md`; đã kiểm tra gửi/lưu lại/chặn gửi liên tục/ẩn và điểm, hai font thật trên Edge. Fixture đã dọn theo UUID; không sửa truyện/chương sẵn có.
 
 Điều kiện chuyển giai đoạn: form, danh sách và điểm trung bình đúng; đánh giá đã ẩn không còn xuất hiện hoặc được tính điểm.
+
+### Bổ sung sau giai đoạn 5 — Theo yêu cầu trước giai đoạn 6
+
+- [x] Rà soát font toàn ứng dụng; sửa font tiêu đề chương, đồng bộ hai font ở tên truyện/tiêu đề/nội dung và tăng kích thước tên truyện.
+- [x] Gom cỡ chữ/kiểu chữ/nền vào Tuỳ chọn đọc bên phải, thêm giãn dòng và độ rộng khung; lưu lựa chọn tương thích dữ liệu cũ.
+- [x] Thêm chuyển chương dưới tiêu đề, giữ điều hướng cuối chương.
+- [x] Mục lục kéo ra/vào bên trái, đánh dấu chương hiện tại; mũi tên cuộn xuống cuối nội dung.
+- [x] Chuyển đánh giá khỏi home sang mỗi chương, vẫn dùng chung theo truyện; chuyển chương nhận dữ liệu mới sau admin ẩn.
+- [x] Admin có nút upload bìa, xem trước/huỷ; kiểm tra upload thật và khôi phục dữ liệu thử.
+- [x] Kiểm tra local và HTTPS Preview, mobile/desktop, font thật, thao tác bàn phím; cập nhật AGENTS/UI_SPEC/README và báo cáo.
+
+Xem `docs/READER_REVISION_REPORT.md`. Đây là phần bổ sung được giao, chưa đánh dấu bắt đầu/hoàn thành giai đoạn 6.
 
 ### Giai đoạn 6 — Kiểm tra toàn luồng và phát hành (06:00–07:00)
 
@@ -237,7 +250,10 @@ Thực hiện theo thứ tự:
 
 ## 8. Bàn giao giữa các chat
 
-- Trạng thái: hoàn thành giai đoạn 1–5; admin, trang đọc và đánh giá không tài khoản dùng dữ liệu thật. Có hai kiểu chữ theo yêu cầu mới; Preview giai đoạn 5 READY và browser HTTPS qua. Không phát hành Production.
+- Trạng thái: hoàn thành giai đoạn 1–5 và phần bổ sung trước giai đoạn 6; admin, trang đọc và đánh giá không tài khoản dùng dữ liệu thật. Font toàn ứng dụng và tiêu đề chương đã sửa; mục lục bên trái, tuỳ chọn bên phải (font/cỡ/nền/giãn dòng/độ rộng), mũi tên xuống cuối, hai vị trí chuyển chương; đánh giá chung ở trang đọc, home không có đánh giá; admin upload bìa có xem trước/huỷ. Không phát hành Production.
+- Preview hiện hành cho phần bổ sung: https://novel-platform-9jxrl4bc8-nguyenlionel.vercel.app; deployment `dpl_BK9z5XAsbZmbJAMmvqPCr4B2W2VB`, inspect preview/READY, build 37 giây, Functions sin1, giữ Vercel Authentication. Browser HTTPS bản cuối đã qua font toàn ứng dụng, settings lưu/reload, mục lục/focus/Escape/xuống cuối, mobile 320/390 px và gửi/lưu/ẩn review/điểm. Báo cáo trong `docs/READER_REVISION_REPORT.md`.
+- Dữ liệu kiểm tra cuối phần bổ sung: đã dọn fixture local/cloud theo UUID và ảnh Blob thử; Preview còn **1 chương và 1 đánh giá thật**, Production 0 chương/0 review. Không dùng số liệu rỗng của báo cáo giai đoạn 5 để xóa dữ liệu hiện tại. Manifest review test hiện đã dọn; không xóa hoặc ẩn review thật.
+- Kiểm tra bổ sung: lint/typecheck/build qua, 8/8 unit, font cmap thiếu 0 glyph; E2E admin 27,5 giây, reader 24,6 giây, review 16,3 giây. Reader có `key={chapter.id}` để panel/mục lục/đánh giá nhận dữ liệu mới khi chuyển chương; đã kiểm tra admin ẩn rồi chuyển chương bằng liên kết Next, không giữ review cũ. Tuỳ chọn đọc lưu qua reload/chuyển chương, có kiểm tra storage lỗi và dữ liệu cũ. Xem `docs/READER_REVISION_REPORT.md`.
 - Đã có: phạm vi một truyện, admin mật khẩu riêng, đọc công khai, đánh giá không tài khoản, hạn chế sao chép thông thường; giai đoạn 0 chuẩn bị và bảy giai đoạn triển khai có bước làm, đầu ra, điều kiện hoàn thành.
 - File mới giai đoạn 5: `src/components/reviews/reviews.tsx`, `src/app/api/reviews/route.ts`, `src/lib/db/reviews.ts`, `src/lib/reviews/`, `src/lib/security/request-identifier.ts`; font ở `src/assets/fonts/` và license công khai `public/fonts/`. Trang đọc/reader/preferences đã cập nhật select font. Tests admin/reader/reviews và unit validation/preferences. Xem `docs/STAGE_5_REPORT.md`. Repository local nhánh `main`, chưa có remote.
 - Ràng buộc mới nhất: không build Docker trên máy người dùng; đã ghi quy tắc trong `AGENTS.md` và phần công nghệ của kế hoạch.
@@ -247,4 +263,4 @@ Thực hiện theo thứ tự:
 - Font mới đã chốt: DejaVu Serif mặc định đóng gói Next local, Times New Roman dùng font hệ thống và dự phòng DejaVu nếu thiếu. Không phát lại font Windows. Field `font` trong `novel-reading-v1`; dữ liệu cũ thiếu font tự chọn DejaVu, không mất cỡ chữ/nền. Đã cập nhật `AGENTS.md`, `UI_SPEC.md` và giấy phép nguồn; không quay về Georgia.
 - Secrets: đã đồng bộ Development/Preview/Production. Chỉ đọc tên biến và trạng thái, không in giá trị. Mật khẩu admin ban đầu ở `.local/admin-access.txt`, bị ignore. File CA Supabase là certificate công khai, không phải secret.
 - Preview giai đoạn 5: https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app, giữ Vercel Authentication; deployment `dpl_2jtKGJsokApSizM6H9zCCjUZEMAE`, inspect preview/READY, build 38 giây, Functions sin1. Dùng URL mới để thấy font/review mới; URL deployment cũ giữ mã cũ. Local dev cổng 3100 còn chạy; kiểm tra listener trước khi khởi động thêm. CLI 64.5.0 dùng cache `.local/npm-cache`. Không có remote Git, chưa phát hành Production.
-- Bước tiếp theo sau khi người dùng giao: giai đoạn 6, nghiệm thu tổng thể theo checklist và chuẩn bị phát hành Production trong phạm vi được ủy quyền. Giữ dữ liệu Preview/Production tách biệt, không đưa fixture vào nội dung thật hoặc đổi sang project Writing. Không thêm tài khoản độc giả/dịch vụ/migration khi chưa cần. Phạm vi turn này là giai đoạn 5 và bổ sung font theo yêu cầu.
+- Bước tiếp theo sau khi người dùng giao: giai đoạn 6, nghiệm thu tổng thể theo checklist và chuẩn bị phát hành Production trong phạm vi được ủy quyền. Giữ dữ liệu Preview/Production tách biệt, không đưa fixture vào nội dung thật hoặc đổi sang project Writing. Không thêm tài khoản độc giả/dịch vụ/migration khi chưa cần. Phạm vi lượt bổ sung mới nhất là rà soát chữ và các tính năng đọc/admin trước giai đoạn 6. Tiếp tục theo yêu cầu mới, không quay về bố cục đánh giá ở home hoặc bỏ mục lục/panel.

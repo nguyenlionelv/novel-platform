@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getNovel, getPublishedChapter } from "@/lib/db/queries";
+import { getNovel, getPublishedChapter, getPublishedChapterPage } from "@/lib/db/queries";
 import { Reader } from "@/components/reader/reader";
-import localFont from "next/font/local";
-
-const dejaVu = localFont({ src: "../../../assets/fonts/DejaVuSerif.ttf", variable: "--font-dejavu-serif", weight: "400", style: "normal", display: "swap", adjustFontFallback: false });
+import { getPublicReviews } from "@/lib/db/reviews";
+import { Reviews } from "@/components/reviews/reviews";
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
@@ -20,5 +19,6 @@ export default async function ChapterPage({ params }: Props) {
   const { id } = await params;
   const [novel, chapter] = await Promise.all([getNovel(), getPublishedChapter(id)]);
   if (!chapter) notFound();
-  return <Reader fontClassName={dejaVu.variable} novelTitle={novel?.title || "Đọc truyện"} chapter={chapter} />;
+  const [toc, reviews] = await Promise.all([getPublishedChapterPage(), getPublicReviews()]);
+  return <Reader key={chapter.id} novelTitle={novel?.title || "Đọc truyện"} chapter={chapter} toc={toc}><Reviews initialPage={reviews} /></Reader>;
 }

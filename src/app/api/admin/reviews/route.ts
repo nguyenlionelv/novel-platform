@@ -9,6 +9,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  try { await authorize(request); const data = record(await readJson(request, 4096)); await hideReview(uuid(data.id)); revalidatePath("/"); return json({ ok: true }); }
+  try { await authorize(request); const data = record(await readJson(request, 4096)); await hideReview(uuid(data.id)); revalidatePath("/"); revalidatePath("/chuong/[id]", "page"); return json({ ok: true }); }
   catch (error) { return failure(error); }
 }

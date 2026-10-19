@@ -1,6 +1,6 @@
-# Bố cục và đặc tả giao diện — Giai đoạn 1
+# Bố cục và đặc tả giao diện
 
-Trạng thái: đã chốt phương án mặc định để triển khai. Tài liệu thiết kế, chưa phải ứng dụng chạy được.
+Cập nhật theo yêu cầu bổ sung sau giai đoạn 5, trước giai đoạn 6. Đã có ứng dụng, dữ liệu truyện thực tế trong Preview; bảng đầu vào giai đoạn 1 bên dưới là ghi nhận lịch sử.
 
 ## 1. Dữ liệu hiện có
 
@@ -28,12 +28,14 @@ Không cần những dữ liệu này để bắt đầu dựng nền tảng. Kh
 | Chữ nội dung truyện | Chọn DejaVu Serif (mặc định, tải cùng web) hoặc Times New Roman (font trên thiết bị, dự phòng DejaVu); mặc định 20 px, giãn dòng 1,9 |
 | Chỉnh cỡ chữ | 18 / 20 / 22 / 24 px; giới hạn lựa chọn rõ ràng |
 | Chiều rộng trang chủ/admin | Tối đa 1.040 px, căn giữa |
-| Chiều rộng nội dung đọc | Tối đa 720 px, căn giữa |
+| Chiều rộng nội dung đọc | Hẹp 600 / vừa 720 (mặc định) / rộng 900 px, căn giữa, tự co theo màn hình |
+| Giãn dòng | 1,5 / 1,7 / 1,9 (mặc định) / 2,1 / 2,3 |
+| Tên truyện / tiêu đề chương | 28–38 px / 23–30 px, font đọc đã chọn, 400, không tổng hợp đậm/nghiêng |
 | Khoảng cách | Theo bước 8 px; khối chính cách nhau 32–48 px |
 | Bo góc | 12 px cho khối/form; 8 px cho nút/ô nhập |
 | Vùng bấm | Tối thiểu 44 × 44 px cho điều khiển chính |
 
-Font giao diện dùng hệ thống; DejaVu Serif được đóng gói cùng ứng dụng, không phụ thuộc CDN font ngoài. Thiết kế ít trang trí, không carousel, popup hoặc thanh điều khiển nổi che nội dung. Hiển thị viền focus khi dùng bàn phím, không dùng màu làm dấu hiệu duy nhất. Cập nhật font theo yêu cầu người dùng ở giai đoạn 5.
+Font giao diện dùng hệ thống; DejaVu Serif được đóng gói cùng ứng dụng, không phụ thuộc CDN font ngoài. Thiết kế ít trang trí, không carousel; mục lục và tuỳ chọn đọc dùng panel dạng dialog, có nút đóng, Escape và focus bàn phím. Thanh trên sticky giữ trong luồng trang. Hiển thị viền focus khi dùng bàn phím, không dùng màu làm dấu hiệu duy nhất. Cập nhật font theo yêu cầu người dùng ở giai đoạn 5.
 
 ## 3. Trang chủ — `/`
 
@@ -52,26 +54,46 @@ Font giao diện dùng hệ thống; DejaVu Serif được đóng gói cùng ứ
 │ Chương 1 — Tiêu đề                                    │
 │ Chương 2 — Tiêu đề                                    │
 │ ...                                      [Xem thêm]  │
-├───────────────────────────────────────────────────────┤
-│ ĐÁNH GIÁ · điểm trung bình / 5 · số đánh giá            │
-│ Tên của bạn [.....................................]  │
-│ Số sao      (1) (2) (3) (4) (5)                       │
-│ Nhận xét, không bắt buộc [.........................]  │
-│ [Gửi đánh giá]                                       │
-│ Tên · số sao · ngày gửi                              │
-│ Nội dung nhận xét                                    │
 └───────────────────────────────────────────────────────┘
 ```
 
 - Bìa rộng khoảng 220 px trên desktop; phần thông tin chiếm khoảng trống còn lại.
 - Mobile dưới 768 px: một cột, bìa rộng khoảng 160 px phía trên thông tin; lề trang 16 px, nút không tràn ngang.
-- Tên truyện là H1 duy nhất; mục lục và đánh giá là H2. Tên dài tự xuống dòng.
+- Tên truyện là H1 duy nhất; mục lục là H2. Trang chủ không hiển thị đánh giá. Tên dài tự xuống dòng.
 - `Đọc từ đầu` mở chương đã đăng có thứ tự nhỏ nhất; `Xem mục lục` cuộn tới mục lục.
 - Mục lục sắp tăng dần theo thứ tự; mỗi dòng là một liên kết có vùng bấm đủ rộng. Tải 30 chương mỗi lần, thêm nút Xem thêm nếu còn.
 - Chưa có chương: thông báo `Truyện chưa có chương được đăng.`, vô hiệu hóa nút đọc, không tạo chương giả.
 - Chưa cấu hình thông tin truyện: trang trống trung tính `Truyện đang được chuẩn bị.`; không lấy mật khẩu hoặc thông tin admin ra giao diện.
 
-### Đánh giá phía dưới
+## 4. Trang đọc — `/chuong/[id]`
+
+```text
+[☷ Mục lục]                         [⚙ Tuỳ chọn đọc] [↓]
+                 TÊN TRUYỆN NỔI BẬT
+                         Chương N
+                     Tiêu đề chương
+     [← Chương trước] [Mục lục] [Chương sau →]
+
+             Nội dung giữ xuống dòng, đoạn văn.
+
+     [← Chương trước] [Mục lục] [Chương sau →]
+                 ĐÁNH GIÁ CHUNG CỦA TRUYỆN
+```
+
+- Mục lục mở panel bên trái, đóng/mở bằng nút trên thanh hoặc giữa hai nút chuyển chương. Chỉ liệt kê chương đã đăng; đánh dấu chương hiện tại và tải thêm 30 chương/lượt. Đóng qua nút ×, Escape, click nền ngoài hoặc chọn chương; trả focus về nút mở.
+- Tuỳ chọn đọc mở panel bên phải: cỡ chữ, DejaVu Serif/Times New Roman, giãn dòng, độ rộng khung, sáng/tối và khôi phục mặc định. Panel cuộn riêng trên màn hình thấp; không tràn ngang, thao tác bàn phím nằm trong dialog.
+- Mũi tên ↓ trên thanh cuộn đến cuối nội dung/chỗ chuyển chương; hỗ trợ giảm chuyển động của thiết bị. Không cần kéo chuột qua toàn bộ nội dung.
+- Tên truyện, tiêu đề chương và nội dung dùng cùng font được chọn, chữ thường 400, không đậm/nghiêng tổng hợp. Tên truyện lớn hơn tiêu đề chương và liên kết về trang truyện. DejaVu được đóng gói toàn ứng dụng để tiêu đề trang chủ/admin/404 cũng đúng font.
+- Tất cả tuỳ chọn lưu trong trình duyệt; mặc định 20 px, DejaVu, nền sáng, giãn dòng 1,9, rộng 720 px. Dữ liệu cũ thiếu trường dùng mặc định mà giữ các lựa chọn hợp lệ khác. Times New Roman thiếu trên thiết bị sẽ dự phòng DejaVu; không phân phối font Windows.
+- Nội dung giữ xuống dòng và dòng trống bằng cách render text an toàn, không thực thi HTML người nhập.
+- Chương trước/sau tính theo các chương đã đăng. Không có chương liền kề thì vô hiệu hóa nút tương ứng; không vòng từ chương cuối về chương đầu.
+- Chương nháp/không tồn tại: trang không tìm thấy với liên kết về mục lục, không gửi nội dung nháp xuống client.
+- Chặn chọn chữ, copy/cut, kéo thả và menu chuột phải chỉ trên phần nội dung chương. Không đặt lớp phủ, không chặn toàn bộ phím tắt hoặc công cụ trình duyệt.
+- Vẫn dùng được cuộn, phóng to, liên kết, bàn phím và trình đọc màn hình. Đây là hạn chế sao chép thông thường, không phải bảo vệ tuyệt đối.
+
+### Đánh giá chung dưới mỗi chương
+
+Mọi chương cùng hiển thị một tập đánh giá của truyện (novel_id 1). Không thêm chapter_id hay thống kê riêng cho chương.
 
 - Tên bắt buộc, 1–50 ký tự sau trim; sao là lựa chọn 1–5 bắt buộc, không chọn sẵn; nhận xét tùy chọn, tối đa 1.000 ký tự.
 - Chọn sao bằng nhóm radio có nhãn `1 sao` đến `5 sao`, dùng được bằng bàn phím; không chỉ dựa vào icon.
@@ -79,30 +101,6 @@ Font giao diện dùng hệ thống; DejaVu Serif được đóng gói cùng ứ
 - Đang gửi: khóa nút gửi, giữ dữ liệu. Lỗi: báo ngay tại trường hoặc form và giữ dữ liệu để sửa. Thành công: báo `Đã gửi đánh giá.`, làm mới danh sách và điểm.
 - Chưa có đánh giá: hiển thị `Chưa có đánh giá.`, không hiển thị điểm 0/5 như một đánh giá thật.
 - Danh sách mới nhất trước; 10 đánh giá mỗi lần, nút Xem thêm nếu còn. Đánh giá đã ẩn không xuất hiện hoặc được tính vào điểm trung bình.
-
-## 4. Trang đọc — `/chuong/[id]`
-
-```text
-                    [← Mục lục]
-                     Tên truyện
-                Chương N — Tiêu đề
-
-            Cỡ chữ [−] 20 px [+]  [Sáng/Tối]
-
-             Nội dung chương, giữ đoạn văn.
-             Cột đọc vừa mắt, không kéo ngang.
-
-      [← Chương trước] [Mục lục] [Chương sau →]
-```
-
-- Trang ưu tiên chữ, không có sidebar và không lặp lại ảnh bìa hay form đánh giá.
-- Thanh cỡ chữ và sáng/tối nằm trên nội dung, không che chữ khi cuộn. Lưu lựa chọn trong trình duyệt; mặc định sáng và 20 px nếu chưa có lựa chọn.
-- Bên dưới có chọn Kiểu chữ: DejaVu Serif / Times New Roman, lưu cùng tuỳ chọn trên trình duyệt. Times New Roman dùng font có sẵn trên thiết bị; giao diện nêu dự phòng DejaVu khi thiếu. Chữ thường 400, không tự thêm đậm/nghiêng.
-- Nội dung giữ xuống dòng và dòng trống bằng cách render text an toàn, không thực thi HTML người nhập.
-- Chương trước/sau tính theo các chương đã đăng. Không có chương liền kề thì vô hiệu hóa nút tương ứng; không vòng từ chương cuối về chương đầu.
-- Chương nháp/không tồn tại: trang không tìm thấy với liên kết về mục lục, không gửi nội dung nháp xuống client.
-- Chặn chọn chữ, copy/cut, kéo thả và menu chuột phải chỉ trên phần nội dung chương. Không đặt lớp phủ, không chặn toàn bộ phím tắt hoặc công cụ trình duyệt.
-- Vẫn dùng được cuộn, phóng to, liên kết, bàn phím và trình đọc màn hình. Đây là hạn chế sao chép thông thường, không phải bảo vệ tuyệt đối.
 
 ## 5. Trang admin — `/admin`
 
@@ -120,7 +118,7 @@ Quản trị truyện                          [Xem trang đọc] [Đăng xuất
 
 THÔNG TIN TRUYỆN
 Tên truyện / Tác giả / Giới thiệu / Trạng thái
-Ảnh bìa [Chọn ảnh] [Xem ảnh hiện tại]
+Ảnh bìa [Tải ảnh bìa lên] [Xem trước] [Huỷ ảnh đã chọn]
 [Lưu thông tin]
 
 CHƯƠNG                                         [Thêm chương]
@@ -149,6 +147,7 @@ Tên | Sao | Nhận xét | Ngày | [Ẩn đánh giá]
 | Chương | Tiêu đề | Bắt buộc, tối đa 200 ký tự |
 | Chương | Nội dung | Bắt buộc khi lưu/đăng, ô nhiều dòng lớn, tối đa 200.000 ký tự |
 
+- Bìa: nút Tải ảnh bìa lên mở bộ chọn tệp; chọn ảnh sẽ xem trước tại chỗ, có Huỷ ảnh đã chọn. Chỉ upload khi bấm Lưu thông tin. Kiểm tra MIME/kích thước phía client và MIME/magic bytes/kích thước tại server; không ảnh hưởng bìa đã lưu khi huỷ hoặc lỗi.
 - Trạng thái chương chỉ có Nháp và Đã đăng. Không tạo bản sửa tách biệt hoặc lịch sử phiên bản.
 - Chương nháp: có Lưu nháp và Đăng chương. Chương đã đăng: có Lưu cập nhật và Gỡ về nháp.
 - Gần nút Lưu cập nhật ghi rõ `Thay đổi sẽ hiển thị ngay cho độc giả.`

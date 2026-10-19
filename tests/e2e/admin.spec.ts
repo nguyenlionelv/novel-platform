@@ -52,7 +52,17 @@ test("admin authentication, authorization, novel cover and chapter lifecycle", a
     await page.getByLabel("Tên truyện", { exact: true }).fill(`${prefix} truyện thử`);
     await page.getByLabel("Tác giả", { exact: true }).fill("Tác giả thử nghiệm");
     await page.getByLabel("Giới thiệu", { exact: true }).fill("Giới thiệu kiểm thử. Sẽ được khôi phục.");
-    await page.getByLabel("Ảnh bìa", { exact: true }).setInputFiles({ name: "cover.png", mimeType: "image/png", buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64") });
+    await page.getByLabel("Ảnh bìa", { exact: true }).setInputFiles({ name: "bad.svg", mimeType: "image/svg+xml", buffer: Buffer.from("<svg/>") });
+    await expect(page.locator("#thong-tin").getByRole("alert")).toContainText("Chọn ảnh JPEG, PNG hoặc WebP, tối đa 2 MB.");
+    const chooserPromise = page.waitForEvent("filechooser");
+    await page.getByRole("button", { name: "Tải ảnh bìa lên", exact: true }).click();
+    const chooser = await chooserPromise;
+    const coverFile = { name: "cover.png", mimeType: "image/png", buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64") };
+    await chooser.setFiles(coverFile);
+    await expect(page.getByRole("img", { name: "Xem trước ảnh bìa" })).toHaveAttribute("src", /^blob:/);
+    await page.getByRole("button", { name: "Huỷ ảnh đã chọn", exact: true }).click();
+    await expect(page.getByRole("img", { name: "Xem trước ảnh bìa" })).toHaveCount(0);
+    await page.getByLabel("Ảnh bìa", { exact: true }).setInputFiles(coverFile);
     await page.getByRole("button", { name: "Lưu thông tin", exact: true }).click();
     await expect(page.getByRole("status")).toHaveText("Đã lưu thông tin truyện.");
     const [updated] = await sql`select title, cover_url from novel_preview.novels where id = 1`;

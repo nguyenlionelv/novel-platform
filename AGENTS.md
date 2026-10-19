@@ -16,12 +16,14 @@
 
 - Website đăng và đọc **một tiểu thuyết**, triển khai trên **Vercel**.
 - Mục tiêu: bản dùng được trong **một ngày, khoảng 8 giờ làm việc**, theo từng giai đoạn trong `PLAN.md`.
-- Trang chủ chính là trang giới thiệu truyện: bìa, tên, tác giả, giới thiệu, mục lục và đánh giá bên dưới.
-- Trang đọc từng chương: nội dung, chương trước/sau, về mục lục, cỡ chữ và sáng/tối; ưu tiên điện thoại.
+- Trang chủ chính là trang giới thiệu truyện: bìa, tên, tác giả, giới thiệu và mục lục; không hiển thị form/danh sách đánh giá ở trang chủ.
+- Trang đọc từng chương: tên truyện nổi bật, tiêu đề đúng font, nội dung; chương trước/sau cả đầu và cuối chương. Mục lục kéo ra/vào bên trái, tuỳ chọn đọc bên phải và nút mũi tên xuống cuối chương ở thanh trên; ưu tiên điện thoại.
 - Kiểu chữ đọc: độc giả chọn **DejaVu Serif** (mặc định, đóng gói `next/font/local`) hoặc **Times New Roman** (font hệ thống, thiếu thì dự phòng DejaVu). Lưu cùng tuỳ chọn đọc; không quay lại Georgia hoặc đóng gói font Windows khi chưa có quyền phân phối. Giữ tiếng Việt và xuống dòng của nội dung gốc.
+- Tuỳ chọn đọc gồm cỡ chữ, kiểu chữ, nền sáng/tối, giãn dòng 1,5–2,3 và độ rộng 600/720/900 px (tự co trên mobile). Lưu ở `novel-reading-v1`, dữ liệu cũ thiếu trường dùng mặc định. Tên truyện/tiêu đề/nội dung cùng font đọc; tiêu đề serif trang chủ/admin/404 dùng DejaVu đóng gói toàn ứng dụng.
+- Đánh giá nằm dưới nội dung mỗi trang đọc, **dùng chung theo truyện**, không tách theo chương; gửi/ẩn phải cập nhật trang đọc.
 - Độc giả **không cần tài khoản**, không đăng nhập và không xác thực email.
 - Form đánh giá: tên hiển thị, số sao 1–5 và nhận xét tùy chọn. Admin được ẩn đánh giá spam.
-- Trang admin có một mật khẩu riêng: sửa truyện/bìa, thêm/sửa/xóa chương, lưu nháp, đăng chương và gỡ về nháp.
+- Trang admin có một mật khẩu riêng: sửa truyện/bìa (nút tải ảnh, xem trước, huỷ chọn; Lưu thông tin mới upload), thêm/sửa/xóa chương, lưu nháp, đăng chương và gỡ về nháp.
 - Đăng nhập admin không phải hệ thống tài khoản độc giả.
 - Nhập chương bằng ô văn bản nhiều dòng, giữ đoạn và xuống dòng. Lưu thủ công với thông báo rõ ràng.
 

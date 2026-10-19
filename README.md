@@ -4,7 +4,7 @@ Website đọc một tiểu thuyết. Độc giả không cần tài khoản; tr
 
 ## Trạng thái
 
-Đã triển khai giai đoạn 1–5: nền tảng, admin, trang truyện/đọc và đánh giá không tài khoản. Trang đọc cho chọn DejaVu Serif hoặc Times New Roman. Chưa phát hành Production; Preview giữ lớp bảo vệ Vercel.
+Đã triển khai giai đoạn 1–5: nền tảng, admin, trang truyện/đọc và đánh giá không tài khoản. Trang đọc có mục lục bên trái, tuỳ chọn đọc bên phải (hai font, cỡ chữ, nền, giãn dòng, độ rộng), chuyển chương đầu/cuối, nút xuống cuối chương và đánh giá chung. Đã bổ sung nút tải bìa/xem trước trong admin. Chưa phát hành Production; Preview giữ lớp bảo vệ Vercel.
 
 - [Kế hoạch và bàn giao](PLAN.md)
 - [Bố cục giao diện](docs/UI_SPEC.md)
@@ -12,6 +12,7 @@ Website đọc một tiểu thuyết. Độc giả không cần tài khoản; tr
 - [Kết quả kiểm tra giai đoạn 3](docs/STAGE_3_REPORT.md)
 - [Kết quả kiểm tra giai đoạn 4](docs/STAGE_4_REPORT.md)
 - [Kết quả kiểm tra giai đoạn 5 và font](docs/STAGE_5_REPORT.md)
+- [Bổ sung trang đọc trước giai đoạn 6](docs/READER_REVISION_REPORT.md)
 - [Quy tắc agent](AGENTS.md)
 
 ## Chạy local
@@ -20,9 +21,9 @@ Yêu cầu Node.js 22.13 trở lên trong nhánh 22.x và npm. Chạy trực ti�
 
 ```powershell
 npm ci
-npx --yes vercel@latest login
-npx --yes vercel@latest link --yes --scope nguyenlionel --project novel-platform
-npx --yes vercel@latest env pull .env.local --yes --scope nguyenlionel
+npx --cache .local/npm-cache --yes vercel@64.5.0 login
+npx --cache .local/npm-cache --yes vercel@64.5.0 link --yes --scope nguyenlionel --project novel-platform
+npx --cache .local/npm-cache --yes vercel@64.5.0 env pull .env.local --yes --scope nguyenlionel
 npm run env:check
 npm run dev
 ```
@@ -46,7 +47,7 @@ Xem `.env.example` để biết cấu trúc. Không đặt secret trong biến `
 
 Mật khẩu admin ban đầu cho preview và production được sinh ngẫu nhiên, khác nhau, chỉ lưu trên máy chủ dự án ở `.local/admin-access.txt`. File này không được commit/deploy/chia sẻ. Mở `/admin` và dùng mật khẩu đúng môi trường. Phiên tồn tại tối đa 8 giờ; đổi hash mật khẩu sẽ làm phiên cũ hết hiệu lực.
 
-Trong admin: lưu thông tin truyện/bìa → thêm chương → Lưu nháp hoặc Đăng chương. Chương đã đăng có nút Lưu cập nhật và Gỡ về nháp; xóa cần xác nhận. Khi phiên hết hạn, đăng nhập lại trong hộp thoại rồi bấm lưu; nội dung đang nhập vẫn còn. Chỉ nội dung đã lưu mới tồn tại sau khi đóng trình duyệt.
+Trong admin: bấm Tải ảnh bìa lên → xem trước hoặc huỷ chọn → Lưu thông tin để upload. Sau đó thêm chương → Lưu nháp hoặc Đăng chương. Chương đã đăng có nút Lưu cập nhật và Gỡ về nháp; xóa cần xác nhận. Khi phiên hết hạn, đăng nhập lại trong hộp thoại rồi bấm lưu; nội dung đang nhập vẫn còn. Chỉ nội dung đã lưu mới tồn tại sau khi đóng trình duyệt.
 
 ## Dữ liệu và quyền truy cập
 
@@ -95,7 +96,7 @@ Test đánh giá tạo bản ghi có prefix ngẫu nhiên; `finally` ẩn đúng
 
 `/` hiển thị bìa, tên/tác giả, giới thiệu, trạng thái và mục lục chỉ gồm chương đã đăng. Nút Đọc từ đầu mở chương có thứ tự nhỏ nhất; mục lục tải thêm 30 chương mỗi lần.
 
-`/chuong/[id]` giữ xuống dòng, có chương trước/sau theo thứ tự các chương đã đăng và về mục lục. Cỡ chữ 18/20/22/24 px và nền sáng/tối được lưu tại `localStorage` với khóa `novel-reading-v1`; nếu không lưu được, điều khiển vẫn dùng được trong trang hiện tại. Chương nháp/không tồn tại trả 404, không gửi tiêu đề/nội dung nháp vào HTML hoặc metadata.
+`/chuong/[id]` giữ xuống dòng, có chương trước/sau theo thứ tự các chương đã đăng và về mục lục. Thanh trên có mục lục kéo ra/vào bên trái, Tuỳ chọn đọc bên phải và mũi tên xuống cuối nội dung. Nút chuyển chương có cả dưới tiêu đề và cuối chương. Cỡ chữ 18/20/22/24 px, nền sáng/tối, giãn dòng 1,5/1,7/1,9/2,1/2,3 và độ rộng 600/720/900 px (tự co trên mobile) được lưu tại `localStorage` với khóa `novel-reading-v1`; nếu không lưu được, điều khiển vẫn dùng được trong trang hiện tại. Chương nháp/không tồn tại trả 404, không gửi tiêu đề/nội dung nháp vào HTML hoặc metadata.
 
 Chọn **DejaVu Serif** (mặc định, đóng gói qua `next/font/local`) hoặc **Times New Roman** (font hệ thống). Thiết bị thiếu Times New Roman sẽ dùng DejaVu Serif; giao diện nêu rõ dự phòng. Không phân phối tệp font Windows. Lựa chọn font lưu cùng cỡ chữ/nền; dữ liệu cũ chưa có font tự dùng DejaVu, giữ nguyên tuỳ chọn còn lại. Xem [nguồn/giấy phép font](src/assets/fonts/README.md).
 
@@ -105,22 +106,22 @@ Trang công khai render theo request; `/api/chapters` dùng `no-store`, chỉ tr
 
 ## Đánh giá không tài khoản
 
-Form dưới mục lục chỉ hỏi tên 1–50 ký tự và số sao 1–5; nhận xét tuỳ chọn tối đa 1.000 ký tự. Không email hoặc tài khoản. Lỗi giữ nội dung; gửi thành công cập nhật danh sách, số lượng và điểm trung bình. Chưa có đánh giá thì không hiển thị điểm 0/5 giả.
+Form dưới nội dung ở mỗi trang đọc chỉ hỏi tên 1–50 ký tự và số sao 1–5; nhận xét tuỳ chọn tối đa 1.000 ký tự. Mọi chương hiển thị cùng một tập đánh giá theo truyện; trang chủ không hiển thị khối này. Không email hoặc tài khoản. Lỗi giữ nội dung; gửi thành công cập nhật danh sách, số lượng và điểm trung bình. Chưa có đánh giá thì không hiển thị điểm 0/5 giả.
 
 `/api/reviews` validate ở server, kiểm tra origin, giới hạn body, honeypot và một lần/phút theo định danh IP được HMAC. Vercel chỉ tin header IP do nền tảng ghi; local dùng chung bucket. GET dùng `no-store`, chỉ trả đánh giá chưa ẩn, mới nhất trước, tải thêm 10 mỗi lượt. Cursor giữ microsecond + UUID để không bỏ sót đánh giá cùng thời điểm. Admin ẩn sẽ loại khỏi cả HTML, API và phép tính điểm ở lượt tải kế tiếp.
 
 ## Preview
 
-[Mở truyện Preview giai đoạn 5](https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app) · [Admin](https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication; đăng nhập tài khoản Vercel có quyền để xem. Chỉ `/admin` cần thêm mật khẩu admin Preview.
+[Mở truyện Preview đã bổ sung](https://novel-platform-9jxrl4bc8-nguyenlionel.vercel.app) · [Admin](https://novel-platform-9jxrl4bc8-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication; đăng nhập tài khoản Vercel có quyền để xem. Chỉ `/admin` cần thêm mật khẩu admin Preview.
 
 ```powershell
-npx --yes vercel@latest curl https://novel-platform-ja3d0tuto-nguyenlionel.vercel.app/api/health --scope nguyenlionel
+npx --cache .local/npm-cache --yes vercel@64.5.0 curl https://novel-platform-9jxrl4bc8-nguyenlionel.vercel.app/api/health --scope nguyenlionel
 ```
 
 Deploy tiếp theo mặc định là Preview:
 
 ```powershell
-npx --yes vercel@latest deploy --yes --scope nguyenlionel --project novel-platform
+npx --cache .local/npm-cache --yes vercel@64.5.0 deploy --yes --scope nguyenlionel --project novel-platform
 ```
 
 `vercel.json` cố định framework Next.js và vùng Functions Singapore. Không thêm `--prod` khi chỉ làm Preview. Luôn inspect kết quả để xác nhận môi trường; chỉ phát hành Production trong phạm vi người dùng giao.

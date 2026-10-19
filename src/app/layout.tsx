@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { dejaVu } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: "Đọc truyện",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="vi"><body className="min-h-screen font-sans antialiased">{children}</body></html>;
+  return <html lang="vi" className={dejaVu.variable}><body className="min-h-screen font-sans antialiased">{children}</body></html>;
 }

@@ -14,6 +14,9 @@ test("anonymous reviews validate, rate limit, paginate and disappear from totals
   if (!password) throw new Error("Preview admin password missing; value hidden");
   const sql = postgres(process.env.DATABASE_URL!, { ssl: { ca: JSON.parse(readFileSync("src/lib/db/supabase-ca.json", "utf8")), rejectUnauthorized: true }, prepare: false, max: 1, onnotice: () => {} });
   const prefix = `E2E-review-${randomUUID().slice(0, 8)}`;
+  const chapterId = randomUUID();
+  const otherChapterId = randomUUID();
+  const readingPath = `/chuong/${chapterId}`;
   const admin = await browser.newContext({ baseURL: origin });
   const scopes = ["admin-login", "review"];
   const keys = scopes.map(scope => createHmac("sha256", process.env.RATE_LIMIT_SECRET!).update(`${scope}:local-or-unknown`).digest("hex"));
@@ -21,6 +24,7 @@ test("anonymous reviews validate, rate limit, paginate and disappear from totals
   const [original] = await sql`select count(*)::int as count, coalesce(sum(rating),0)::int as sum from novel_preview.reviews where is_hidden=false`;
   const post = (data: unknown, headers: Record<string, string> = { origin }) => request.post("/api/reviews", { headers, data });
   try {
+    await sql`insert into novel_preview.chapters (id,position,title,content,status,published_at) values (${chapterId},2000000801,${prefix + " chapter one"},'Review fixture chapter one','published',now()), (${otherChapterId},2000000802,${prefix + " chapter two"},'Review fixture chapter two','published',now())`;
     await sql`delete from novel_preview.rate_limits where key in ${sql(keys)}`;
     expect((await request.post("/api/reviews", { data: {} })).status()).toBe(403);
     expect((await post({}, { origin: "https://attacker.example" })).status()).toBe(403);
@@ -30,6 +34,8 @@ test("anonymous reviews validate, rate limit, paginate and disappear from totals
     expect((await request.get("/api/reviews?before=bad-cursor")).status()).toBe(400);
     expect((await request.get("/api/reviews")).headers()["cache-control"]).toContain("no-store");
     await page.goto("/");
+    await expect(page.locator("section#danh-gia")).toHaveCount(0);
+    await page.goto(readingPath);
     const section = page.locator("section#danh-gia");
     if (!original.count) {
       await expect(section.getByText("Chưa có đánh giá.", { exact: true })).toBeVisible();
@@ -57,7 +63,9 @@ test("anonymous reviews validate, rate limit, paginate and disappear from totals
     expect(await page.evaluate(() => "__reviewXss" in window)).toBe(false);
     const [created] = await sql`select id, display_name, rating, comment from novel_preview.reviews where display_name=${`${prefix} độc giả`}`;
     expect(created.rating).toBe(5); expect(created.comment).toBe(comment);
-    await page.reload();
+    await page.getByRole("navigation", { name: "Điều hướng đầu chương" }).getByRole("link", { name: "Chương sau →", exact: true }).click();
+    await expect(page).toHaveURL(`${origin}/chuong/${otherChapterId}`);
+    await expect(section.locator("#review-summary")).toContainText(expectedAverage);
     await expect(section.getByText(`${prefix} độc giả`, { exact: true })).toBeVisible();
     expect((await page.context().cookies()).some(cookie => cookie.name === "novel_admin")).toBe(false);
     expect((await post({ displayName: `${prefix} rate blocked`, rating: 1 })).status()).toBe(429);
@@ -83,9 +91,13 @@ test("anonymous reviews validate, rate limit, paginate and disappear from totals
     expect(afterHide.reviews.some(review => review.id === created.id)).toBe(false);
     expect(afterHide.summary.count).toBe(original.count + 1);
     expect(afterHide.summary.average).toBeCloseTo((original.sum + 3) / (original.count + 1));
-    const html = await (await request.get("/")).text();
+    const html = await (await request.get(readingPath)).text();
     expect(html.includes(`${prefix} độc giả`)).toBe(false);
     expect(html.includes("__reviewXss")).toBe(false);
+    await page.getByRole("navigation", { name: "Điều hướng đầu chương" }).getByRole("link", { name: "← Chương trước", exact: true }).click();
+    await expect(page).toHaveURL(`${origin}${readingPath}`);
+    await expect(section.getByText(`${prefix} độc giả`, { exact: true })).toHaveCount(0);
+    await expect(section.locator("#review-summary")).toContainText(`${afterHide.summary.count} đánh giá`);
     await sql`insert into novel_preview.reviews (display_name,rating,comment) select ${prefix} || ' pagination ' || n, 4, 'Pagination fixture' from generate_series(1,12) n`;
     await page.reload();
     const list = section.getByRole("list", { name: "Đánh giá của độc giả" });
@@ -109,6 +121,7 @@ test("anonymous reviews validate, rate limit, paginate and disappear from totals
     if (rows.length) await sql`update novel_preview.reviews set is_hidden=true where id in ${sql(rows.map(row=>row.id))}`;
     await sql`delete from novel_preview.rate_limits where key in ${sql(keys)}`;
     for (const row of originalLimits) await sql`insert into novel_preview.rate_limits (key,attempts,reset_at) values (${row.key},${row.attempts},${row.reset_at})`;
+    await sql`delete from novel_preview.chapters where id in ${sql([chapterId, otherChapterId])}`;
     await admin.close(); await sql.end();
   }
 });
