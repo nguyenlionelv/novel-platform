@@ -17,6 +17,6 @@ export async function getPublicReviews(before?: ReviewCursor): Promise<ReviewPag
   });
 }
 
-export async function createReview(input: ReviewInput) {
-  await withDb(async sql => sql`insert into ${sql(getSchema())}.reviews (novel_id, display_name, rating, comment) values (1, ${input.displayName}, ${input.rating}, ${input.comment})`);
+export async function createReview(input: ReviewInput, userId: string) {
+  await withDb(async sql => sql`insert into ${sql(getSchema())}.reviews (novel_id, display_name, rating, comment, user_id) values (1, ${input.displayName}, ${input.rating}, ${input.comment}, ${userId}::uuid)`);
 }

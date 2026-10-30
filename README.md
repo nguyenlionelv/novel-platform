@@ -1,24 +1,37 @@
 # Novel Platform
 
-Website đọc một tiểu thuyết. Độc giả không cần tài khoản; trang admin dùng mật khẩu riêng.
+A single-novel publishing and reading application built with Next.js. Visitors can read without an account. Reader accounts provide progress tracking, a bookmark, chapter notifications, and review history. Administration uses a separate password.
 
-## Trạng thái
+[Live website](https://novel-platform-alpha.vercel.app)
 
-Đã triển khai giai đoạn 1–6: nền tảng, admin, trang truyện/đọc và đánh giá không tài khoản. Trang đọc có mục lục bên trái, tuỳ chọn đọc bên phải (hai font, cỡ chữ, nền, giãn dòng, giãn đoạn, độ rộng), chuyển chương đầu/cuối, nút xuống cuối chương và đánh giá chung. Đã bổ sung nút tải bìa/xem trước trong admin. Đã phát hành Production và nghiệm thu HTTPS; Preview giữ lớp bảo vệ Vercel. Production dùng dữ liệu riêng; chủ website đã tự nhập truyện sau phát hành.
+## Features
 
-- [Kế hoạch và bàn giao](PLAN.md)
-- [Bố cục giao diện](docs/UI_SPEC.md)
-- [Kết quả kiểm tra giai đoạn 2](docs/STAGE_2_REPORT.md)
-- [Kết quả kiểm tra giai đoạn 3](docs/STAGE_3_REPORT.md)
-- [Kết quả kiểm tra giai đoạn 4](docs/STAGE_4_REPORT.md)
-- [Kết quả kiểm tra giai đoạn 5 và font](docs/STAGE_5_REPORT.md)
-- [Bổ sung trang đọc trước giai đoạn 6](docs/READER_REVISION_REPORT.md)
-- [Nghiệm thu và phát hành giai đoạn 6](docs/STAGE_6_REPORT.md)
-- [Quy tắc agent](AGENTS.md)
+- Novel overview, cover image, and paginated chapter list.
+- Chapter navigation, light/dark themes, font selection, and reading layout controls.
+- Email/password and Google authentication through Supabase Auth.
+- Per-reader progress, one saved bookmark, and in-app notifications for new chapters.
+- Novel-wide ratings and reviews; authentication required for new submissions.
+- Administration for novel details, cover uploads, drafts, publishing, and review moderation.
 
-## Chạy local
+The application manages one novel. Reader accounts do not grant administrative access.
 
-Yêu cầu Node.js 22.13 trở lên trong nhánh 22.x và npm. Chạy trực tiếp bằng Node.js, không build Docker trên máy người dùng.
+## Stack
+
+| Component | Technology |
+| --- | --- |
+| Application | Next.js 16.4.2, React 19.3.1, TypeScript, Tailwind CSS 4 |
+| Runtime | Node.js 22.x |
+| Database | Supabase PostgreSQL with Postgres.js |
+| Reader authentication | Supabase Auth |
+| Cover storage | Vercel Blob |
+| Hosting | Vercel, Singapore region |
+| Tests | Node.js test runner and Playwright with Microsoft Edge |
+
+Development and builds use Webpack. Run Node.js directly; do not build Docker images on the project owner's machine.
+
+## Getting started
+
+Requirements: Node.js 22.13 or later within the 22.x release line, npm, and access to the existing Vercel project.
 
 ```powershell
 npm ci
@@ -29,118 +42,119 @@ npm run env:check
 npm run dev
 ```
 
-Mặc định mở `http://localhost:3000`. Không tạo project/database mới nếu dự án đã liên kết. `env pull` chỉ dùng Development cho local; không kéo cấu hình Production để chạy thử.
+Open [localhost:3000](http://localhost:3000). Pull Development variables for local work. Use the existing project; do not provision another database or use Production credentials for development.
 
-Các lệnh dev/build dùng Webpack được Next.js hỗ trợ, vì Turbopack gặp lỗi tạo tiến trình trên máy Windows hiện tại. Không dùng Docker làm cách xử lý lỗi này.
+### Environment variables
 
-## Biến môi trường
+See [.env.example](.env.example). Store local values in `.env.local` and deployment values in Vercel.
 
-| Tên | Mục đích |
+| Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | Kết nối Supabase transaction pooler bằng role của môi trường |
-| `DATABASE_SCHEMA` | `novel_preview` hoặc `novel_production` |
-| `ADMIN_PASSWORD_HASH` | Hash scrypt của mật khẩu admin; không lưu plaintext trong biến này |
-| `SESSION_SECRET` | Khóa ngẫu nhiên ít nhất 32 ký tự để mã hóa/ký cookie |
-| `RATE_LIMIT_SECRET` | Khóa riêng để băm định danh chống spam |
-| `BLOB_READ_WRITE_TOKEN` | Quyền server tải ảnh lên Vercel Blob |
+| `DATABASE_URL` | Supabase transaction-pooler connection using the environment's application role |
+| `DATABASE_SCHEMA` | `novel_preview` for Development/Preview; `novel_production` for Production |
+| `ADMIN_PASSWORD_HASH` | Admin password hash in `scrypt:SALT_HEX:HASH_HEX` format |
+| `SESSION_SECRET` | Admin session secret, at least 32 characters |
+| `RATE_LIMIT_SECRET` | Separate secret for hashing rate-limit identifiers, at least 32 characters |
+| `BLOB_READ_WRITE_TOKEN` | Server-side Vercel Blob token |
+| `NEXT_PUBLIC_SUPABASE_URL` | Public URL of the existing Supabase project |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
 
-Xem `.env.example` để biết cấu trúc. Không đặt secret trong biến `NEXT_PUBLIC_*`, source, log hoặc commit. Các file `.env.local` và `.local/` đã được ignore ở cả Git và deployment.
+The Supabase project is `novel-platform` (`fbtpriygrhtalsblzbhh`). Google Client Secret belongs in Supabase provider settings. The application does not require a service-role key. Keep credentials out of source files, logs, and commits; `.env.local` and `.local/` are ignored by Git and deployment.
 
-Mật khẩu admin ban đầu cho preview và production được sinh ngẫu nhiên, khác nhau, chỉ lưu trên máy chủ dự án ở `.local/admin-access.txt`. File này không được commit/deploy/chia sẻ. Mở `/admin` và dùng mật khẩu đúng môi trường. Phiên tồn tại tối đa 8 giờ; đổi hash mật khẩu sẽ làm phiên cũ hết hiệu lực.
+Google redirects, email confirmation, and SMTP configuration are documented in [Reader accounts](docs/READER_ACCOUNTS.md).
 
-Trong admin: bấm Tải ảnh bìa lên → xem trước hoặc huỷ chọn → Lưu thông tin để upload. Sau đó thêm chương → Lưu nháp hoặc Đăng chương. Chương đã đăng có nút Lưu cập nhật và Gỡ về nháp; xóa cần xác nhận. Khi phiên hết hạn, đăng nhập lại trong hộp thoại rồi bấm lưu; nội dung đang nhập vẫn còn. Chỉ nội dung đã lưu mới tồn tại sau khi đóng trình duyệt.
+## Usage
 
-## Dữ liệu và quyền truy cập
+### Reading
 
-- Supabase project riêng: `novel-platform`, ref `fbtpriygrhtalsblzbhh`, Singapore. Không dùng project Writing.
-- Hai schema riêng: Development/Preview dùng `novel_preview`; Production dùng `novel_production`.
-- Mỗi schema có ba bảng nghiệp vụ `novels`, `chapters`, `reviews` và một bảng kỹ thuật `rate_limits`.
-- Mỗi role ứng dụng chỉ có quyền thao tác dữ liệu trong schema của mình, không có quyền tạo database/role hoặc quyền quản trị toàn project.
-- Các schema không được expose qua Data API; đã bật RLS và chặn quyền của `anon`/`authenticated`. Browser không kết nối database trực tiếp.
-- Mỗi schema có đúng một bản ghi truyện ID 1, ban đầu rỗng. Khởi tạo dùng `ON CONFLICT DO NOTHING`, không ghi đè truyện đã nhập.
-- Kết nối server dùng transaction pooler, `prepare: false`, giới hạn pool và xác minh certificate TLS. CA công khai Supabase được đóng gói tại `src/lib/db/supabase-ca.json`, tải từ [nguồn Supabase](https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt).
-- Mỗi thao tác dùng `withDb` để giữ riêng kết nối rồi trả về pool; các câu lệnh trong cùng callback chạy tuần tự. Điều này tránh [pipelining không tương thích transaction pooler](https://supabase.com/docs/guides/database/postgres-js), đã gây treo API khi kiểm thử.
+Open the home page to select a published chapter. The chapter toolbar provides the table of contents, reading preferences, and a shortcut to the end of the chapter.
 
-Migration nằm trong `supabase/migrations/`. File được tạo bằng `supabase migration new`; đã áp dụng lên cloud bằng Supabase MCP. Không chạy `supabase start`, database local, `db reset` hoặc các lệnh cần Docker. Với thay đổi tiếp theo, kiểm tra project ref, review migration và dùng công cụ cloud theo quyền đã được giao.
+DejaVu Serif is bundled with the application. Times New Roman uses the device's installed font, with DejaVu Serif as fallback. Font, size, theme, line spacing, paragraph spacing, and content width are stored under `novel-reading-v1` in `localStorage`.
 
-## Kiểm tra
+Each LF, CRLF, or CR starts a paragraph. Blank lines do not create empty paragraphs. Paragraphs use a 2em first-line indent; display formatting does not alter stored chapter text.
+
+Signed-in readers can submit reviews and save one bookmark. Returning to the bookmarked chapter requires removing that bookmark before continuing. Progress reaches Read at 90% of chapter content; the review section is excluded. Chapter notifications are in-app only.
+
+Text selection, copy/cut, dragging, and the context menu are restricted within chapter content. Forms remain editable. These restrictions cannot prevent content extraction, screenshots, or OCR.
+
+### Administration
+
+Open `/admin` and use the password for the selected environment. Local access details are stored in the ignored `.local/admin-access.txt` file. Preview and Production passwords differ.
+
+1. Update novel details and select a cover image. Upload occurs when saving the form.
+2. Add a chapter and save it as a draft or publish it.
+3. Save edits to published chapters to make them public immediately, or unpublish them to return to draft.
+4. Confirm chapter deletion when prompted. Hide unwanted reviews from the review list.
+
+Saving is manual. Unsaved edits trigger navigation warnings. When a session expires, sign in again in the dialog and retry saving; edits remain on the current page. Closing the browser without saving loses those edits. Admin sessions expire after eight hours; changing the password hash invalidates existing sessions.
+
+## Testing
 
 ```powershell
 npm run env:check
 npm run lint
 npm run typecheck
 npm test
-npm run db:verify
-npm run blob:verify
 npm run build
 ```
 
-`db:verify` dùng cấu hình local: kiểm tra một truyện, cách ly schema và thử ghi chương/đánh giá trong transaction được rollback. Không lưu nội dung truyện thử. Không chạy lệnh này vào cấu hình Production để thử phát triển.
+Integration checks use the configured services:
 
-`blob:verify` tải một ảnh kiểm tra nhỏ lên kho ảnh, đọc metadata và xóa đúng ảnh thử trong `finally`; không xóa ảnh bìa của truyện.
+| Command | Effect |
+| --- | --- |
+| `npm run db:verify` | Checks database access and schema isolation; test writes are rolled back |
+| `npm run blob:verify` | Uploads, inspects, and deletes a temporary image |
+| `npm run test:e2e` | Runs browser tests against `http://localhost:3100` using Microsoft Edge |
 
-Kiểm thử admin bằng Edge đã cài trên Windows:
+Start the server separately with `npm run dev -- --port 3100` before E2E tests. Account and review tests require two dedicated, confirmed Supabase Auth users in `.local/reader-test-accounts.json`; see [test setup](docs/READER_ACCOUNTS.md).
 
-```powershell
-npm run dev -- --port 3100
-# Trong terminal thứ hai
-npm run test:e2e
-```
+Run integration tests against Preview when no one else is editing its data. E2E tests enforce `DATABASE_SCHEMA=novel_preview`. Test reviews are hidden and recorded in `.local/reader-review-fixtures.json`; administrative cleanup must delete only those UUIDs because the application role cannot delete reviews.
 
-E2E chỉ chấp nhận schema `novel_preview`, dùng mật khẩu local mà không ghi vào log/trace, thử thay đổi dữ liệu rồi khôi phục trong `finally`. Chạy khi không có người khác sửa dữ liệu Preview. Test không dành cho Production. Kiểm tra ẩn đánh giá dùng fixture riêng tùy chọn trong `.local/e2e-review.json`; báo cáo giai đoạn 3 ghi nhận lần đã thử và dọn fixture đó.
+`GET /api/health` returns `{"status":"ok"}` when the novel record is accessible, or HTTP 503 otherwise.
 
-Test đánh giá tạo bản ghi có prefix ngẫu nhiên; `finally` ẩn đúng các bản ghi thử và ghi UUID vào `.local/stage5-review-fixtures.json`. Role ứng dụng không có DELETE reviews; dùng quyền quản trị cloud xóa đúng UUID trong manifest sau thử, không xóa theo tên chung hoặc xóa đánh giá thật. Lượt kiểm tra giai đoạn 5 đã dọn toàn bộ fixture.
+## Data and deployment
 
-`/api/health` trả `{"status":"ok"}` khi đọc được đúng một bản ghi truyện, hoặc HTTP 503 với thông báo chung khi chưa sẵn sàng. Endpoint không trả chi tiết database, cấu hình hoặc secret.
+Development and Preview use `novel_preview`; Production uses `novel_production`. Each schema has a separate application role and RLS. Reader identities share the project's Supabase Auth service; reader profiles and activity are stored separately in each schema.
 
-## Đọc truyện
+Server queries use `withDb` in `src/lib/db/client.ts`. Each callback reserves a connection, awaits statements sequentially, and releases the connection. Do not pipeline queries on the same connection or set `max_pipeline: 0`. The transaction-pooler connection disables prepared statements and verifies TLS with the bundled public CA.
 
-`/` hiển thị bìa, tên/tác giả, giới thiệu, trạng thái và mục lục chỉ gồm chương đã đăng. Nút Đọc từ đầu mở chương có thứ tự nhỏ nhất; mục lục tải thêm 30 chương mỗi lần.
+Migrations are stored in `supabase/migrations/` and have been applied to the existing cloud project. Do not run `supabase start` or `db reset` for this setup. Production contains user-entered content; do not copy Preview data into it or restore the empty state described in early reports.
 
-`/chuong/[id]` hiển thị mỗi lần Enter thành một đoạn, thụt dòng đầu 2em và giãn đoạn riêng; dòng trống chỉ tách đoạn, không thêm đoạn rỗng. Nội dung lưu trong database không bị thay đổi. Trang đọc có chương trước/sau theo thứ tự các chương đã đăng và về mục lục. Thanh trên có mục lục kéo ra/vào bên trái, Tuỳ chọn đọc bên phải và mũi tên xuống cuối nội dung. Nút chuyển chương có cả dưới tiêu đề và cuối chương. Cỡ chữ 18/20/22/24 px, nền sáng/tối, giãn dòng 1,5/1,7/1,9/2,1/2,3, giãn đoạn 0,5/0,8/1,2/1,6em (mặc định 0,8em), và độ rộng 600/720/900 px (tự co trên mobile) được lưu tại `localStorage` với khóa `novel-reading-v1`; nếu không lưu được, điều khiển vẫn dùng được trong trang hiện tại. Chương nháp/không tồn tại trả 404, không gửi tiêu đề/nội dung nháp vào HTML hoặc metadata.
-
-Chọn **DejaVu Serif** (mặc định, đóng gói qua `next/font/local`) hoặc **Times New Roman** (font hệ thống). Thiết bị thiếu Times New Roman sẽ dùng DejaVu Serif; giao diện nêu rõ dự phòng. Không phân phối tệp font Windows. Lựa chọn font lưu cùng cỡ chữ/nền; dữ liệu cũ chưa có font tự dùng DejaVu, giữ nguyên tuỳ chọn còn lại. Xem [nguồn/giấy phép font](src/assets/fonts/README.md).
-
-Vùng nội dung chương chặn chọn chữ, copy/cut, kéo văn bản và menu chuột phải. Admin và ô nhập hoạt động bình thường; không chặn phím tắt toàn trang, cuộn, phóng to hoặc trình đọc màn hình. Đây là hạn chế sao chép thông thường, không thể chặn tuyệt đối trích xuất nội dung, chụp màn hình hoặc OCR.
-
-Trang công khai render theo request; `/api/chapters` dùng `no-store`, chỉ trả ID/thứ tự/tiêu đề published. React `cache()` chỉ khử truy vấn trùng trong lượt render, không lưu dữ liệu giữa request. Các thao tác admin vẫn gọi `revalidatePath` cho trang chủ và pattern trang đọc; sửa metadata truyện cũng làm mới metadata trang đọc.
-
-## Đánh giá không tài khoản
-
-Form dưới nội dung ở mỗi trang đọc chỉ hỏi tên 1–50 ký tự và số sao 1–5; nhận xét tuỳ chọn tối đa 1.000 ký tự. Mọi chương hiển thị cùng một tập đánh giá theo truyện; trang chủ không hiển thị khối này. Không email hoặc tài khoản. Lỗi giữ nội dung; gửi thành công cập nhật danh sách, số lượng và điểm trung bình. Chưa có đánh giá thì không hiển thị điểm 0/5 giả.
-
-`/api/reviews` validate ở server, kiểm tra origin, giới hạn body, honeypot và một lần/phút theo định danh IP được HMAC. Vercel chỉ tin header IP do nền tảng ghi; local dùng chung bucket. GET dùng `no-store`, chỉ trả đánh giá chưa ẩn, mới nhất trước, tải thêm 10 mỗi lượt. Cursor giữ microsecond + UUID để không bỏ sót đánh giá cùng thời điểm. Admin ẩn sẽ loại khỏi cả HTML, API và phép tính điểm ở lượt tải kế tiếp.
-
-## Production
-
-[Website](https://novel-platform-alpha.vercel.app) · [Admin](https://novel-platform-alpha.vercel.app/admin). Trang đọc công khai; admin dùng mật khẩu Production riêng trong dòng `production admin password` của `.local/admin-access.txt`. Mật khẩu Preview không dùng cho Production.
-
-Đã kiểm tra đăng/đọc hai chương, upload bìa và gửi/ẩn đánh giá bằng fixture tạm, sau đó dọn sạch và khôi phục thông tin ban đầu khi nghiệm thu. **Sau phát hành, chủ website đã tự nhập nội dung Production**; giữ nguyên dữ liệu này. Preview vẫn giữ dữ liệu riêng, không tự chuyển sang Production. Không chạy lại thao tác khôi phục trạng thái Production rỗng từ báo cáo nghiệm thu cũ.
-
-Chỉ phát hành cập nhật khi đã kiểm tra và nằm trong phạm vi được giao:
+For an authorized deployment, use:
 
 ```powershell
+# Preview
+npx --cache .local/npm-cache --yes vercel@64.5.0 deploy --yes --scope nguyenlionel --project novel-platform
+
+# Production
 npx --cache .local/npm-cache --yes vercel@64.5.0 deploy --prod --yes --scope nguyenlionel --project novel-platform
 ```
 
-## Preview
+Verify the deployment target and status after deployment. Preview and snapshot URLs retain Vercel Authentication; the main Production URL is public.
 
-[Mở truyện Preview đã bổ sung](https://novel-platform-qpr93li30-nguyenlionel.vercel.app) · [Admin](https://novel-platform-qpr93li30-nguyenlionel.vercel.app/admin) — giữ Vercel Authentication; đăng nhập tài khoản Vercel có quyền để xem. Chỉ `/admin` cần thêm mật khẩu admin Preview.
+## Status and known issues
 
-```powershell
-npx --cache .local/npm-cache --yes vercel@64.5.0 curl https://novel-platform-qpr93li30-nguyenlionel.vercel.app/api/health --scope nguyenlionel
-```
+Reader accounts were deployed on October 25, 2026. The following items remain open in the recorded handover; they were not reverified during the October 30 documentation update:
 
-Deploy tiếp theo mặc định là Preview:
+- Google authentication reached Google's sign-in page, but a later attempt returned to `localhost:3000`. The owner chose to update Supabase Site URL and Redirect URLs; a complete sign-in still requires confirmation.
+- Custom SMTP and confirmation-email delivery to a real mailbox have not been verified.
+- The October 25 dependency audit reported four high-severity findings in the `@vercel/blob → @vercel/oidc → @vercel/cli-config → zod` chain (`GHSA-mrhx-c7xc-m3w5`). No dependency update has been applied.
+- Mobile checks used Edge device emulation. Physical iPhone and Android testing remains pending.
 
-```powershell
-npx --cache .local/npm-cache --yes vercel@64.5.0 deploy --yes --scope nguyenlionel --project novel-platform
-```
+See [PLAN.md](PLAN.md) for acceptance criteria, remaining work, and the current handover.
 
-`vercel.json` cố định framework Next.js và vùng Functions Singapore. Không thêm `--prod` khi chỉ làm Preview. Luôn inspect kết quả để xác nhận môi trường; chỉ phát hành Production trong phạm vi người dùng giao.
+## Documentation
 
-## Giới hạn đã ghi nhận
+- [Project plan and handover](PLAN.md)
+- [UI specification](docs/UI_SPEC.md)
+- [Reader account configuration](docs/READER_ACCOUNTS.md)
+- [Foundation report](docs/STAGE_2_REPORT.md)
+- [Administration report](docs/STAGE_3_REPORT.md)
+- [Reading report](docs/STAGE_4_REPORT.md)
+- [Reviews and fonts report](docs/STAGE_5_REPORT.md)
+- [Reader revision report](docs/READER_REVISION_REPORT.md)
+- [Initial release report](docs/STAGE_6_REPORT.md)
+- [Font source and license](src/assets/fonts/README.md)
+- [Repository instructions](AGENTS.md)
 
-- Admin, trang đọc và đánh giá đã hoạt động với dữ liệu thật. Giai đoạn 6 đã nghiệm thu và phát hành; giai đoạn 7 (nội dung thật/bàn giao cuối) chưa triển khai.
-- `npm audit --omit=dev` không có vulnerability tại thời điểm kiểm tra. Full audit có advisory chưa có bản vá cho `braces` trong chuỗi dependency của ESLint/Next lint config, chỉ dùng lúc phát triển. Không chạy `npm audit fix --force` để hạ phiên bản framework; kiểm tra bản vá upstream khi cập nhật dependency.
-- Hạn chế copy đã áp dụng trong nội dung chương; không thể chặn tuyệt đối việc trích xuất nội dung đã gửi đến trình duyệt.
+Stage reports describe historical releases. Current requirements and status are recorded in PLAN.md.

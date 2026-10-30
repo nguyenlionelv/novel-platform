@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { countPublishedChapters, getNovel, getPublishedChapterPage } from "@/lib/db/queries";
 import { ChapterList } from "@/components/reader/chapter-list";
+import { AccountBar } from "@/components/account/account-bar";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function HomePage() {
 
   return <main id="noi-dung" className="public-home mx-auto max-w-[1040px] px-4 pb-12 pt-8 sm:px-6 sm:pt-12">
     <header className="public-masthead"><span className="public-mark" aria-hidden="true">✦</span><p>GÓC ĐỌC TRUYỆN</p><span className="ml-auto text-xs tracking-normal text-muted">Một cuốn truyện, từng trang một.</span></header>
+    <AccountBar />
     <section className="novel-intro" aria-labelledby="novel-title">
       <div className="novel-cover">
         {novel?.cover_url ? <Image unoptimized src={novel.cover_url} width={220} height={330} alt={`Bìa truyện ${novel.title}`} className="aspect-[2/3] w-full rounded-lg object-cover" /> : <div className="empty-cover"><span aria-hidden="true">✦</span><span>Bìa truyện<br />đang được chuẩn bị</span></div>}

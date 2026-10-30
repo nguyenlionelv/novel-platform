@@ -9,6 +9,8 @@ import { ChapterNavigation } from "./chapter-navigation";
 import { ReaderPanel } from "./reader-panel";
 import { ReadingOptions } from "./reading-options";
 import { splitChapterParagraphs } from "@/lib/reader/paragraphs";
+import { ReadingTracker } from "@/components/account/reading-tracker";
+import { AccountBar } from "@/components/account/account-bar";
 
 const defaultSnapshot = JSON.stringify(DEFAULT_READING);
 let fallback = defaultSnapshot;
@@ -31,6 +33,7 @@ export function Reader({ novelTitle, chapter, toc, children }: { novelTitle: str
   const preferences = parseReadingPreferences(stored);
   const optionsRef = useRef<HTMLDialogElement>(null);
   const tocRef = useRef<HTMLDialogElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
   const [panel, setPanel] = useState<"toc" | "options" | null>(null);
   const block = (event: { preventDefault: () => void }) => event.preventDefault();
   useEffect(() => {
@@ -50,9 +53,11 @@ export function Reader({ novelTitle, chapter, toc, children }: { novelTitle: str
   return <main className="reader-page" data-theme={preferences.theme} data-font={preferences.font} style={{ "--reading-width": `${READING_WIDTHS[preferences.width]}px` } as CSSProperties}>
     <div className="reader-toolbar"><div className="reader-toolbar-inner"><button type="button" className="reader-control" disabled={!ready} aria-haspopup="dialog" aria-controls="reader-toc" aria-expanded={panel === "toc"} onClick={() => openPanel("toc")}>☷ <span>Mục lục</span></button><div className="flex gap-2"><button type="button" className="reader-control" disabled={!ready} aria-haspopup="dialog" aria-controls="reader-options" aria-expanded={panel === "options"} onClick={() => openPanel("options")}>⚙ Tuỳ chọn đọc</button><button type="button" className="reader-control" disabled={!ready} aria-label="Xuống cuối chương" title="Xuống cuối chương" onClick={scrollDown}>↓</button></div></div></div>
     <div className="reader-frame">
+      <AccountBar />
       <header className="reader-heading"><Link href="/" prefetch={false} className="reader-novel-title reader-display">{novelTitle}</Link><p className="public-eyebrow my-4">CHƯƠNG {chapter.position}</p><h1 className="reader-chapter-title reader-display">{chapter.title}</h1></header>
       <ChapterNavigation previousId={chapter.previous_id} nextId={chapter.next_id} position="top" onOpenToc={() => openPanel("toc")} />
-      <article aria-label="Nội dung chương" tabIndex={0} className="chapter-content" style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight, "--paragraph-gap": `${preferences.paragraphGap}em` } as CSSProperties} draggable={false} onCopy={block} onCut={block} onContextMenu={block} onDragStart={block}>{splitChapterParagraphs(chapter.content).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</article>
+      <ReadingTracker chapterId={chapter.id} articleRef={articleRef} />
+      <article ref={articleRef} aria-label="Nội dung chương" tabIndex={0} className="chapter-content" style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight, "--paragraph-gap": `${preferences.paragraphGap}em` } as CSSProperties} draggable={false} onCopy={block} onCut={block} onContextMenu={block} onDragStart={block}>{splitChapterParagraphs(chapter.content).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</article>
       <div id="cuoi-chuong"><p className="reader-endnote">Hết chương {chapter.position}</p><ChapterNavigation previousId={chapter.previous_id} nextId={chapter.next_id} position="bottom" onOpenToc={() => openPanel("toc")} /></div>
       {children}
     </div>

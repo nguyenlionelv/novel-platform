@@ -1,7 +1,7 @@
 import nextEnv from "@next/env";
 
 nextEnv.loadEnvConfig(process.cwd());
-const required = ["DATABASE_URL", "DATABASE_SCHEMA", "ADMIN_PASSWORD_HASH", "SESSION_SECRET", "RATE_LIMIT_SECRET", "BLOB_READ_WRITE_TOKEN"];
+const required = ["DATABASE_URL", "DATABASE_SCHEMA", "ADMIN_PASSWORD_HASH", "SESSION_SECRET", "RATE_LIMIT_SECRET", "BLOB_READ_WRITE_TOKEN", "NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
 const missing = required.filter((key) => !process.env[key]?.trim());
 const invalid: string[] = [];
 if (process.env.DATABASE_URL) {
@@ -16,6 +16,8 @@ for (const name of ["SESSION_SECRET", "RATE_LIMIT_SECRET"]) {
   if (process.env[name] && (process.env[name]!.length < 32 || process.env[name]!.startsWith("REPLACE_"))) invalid.push(name);
 }
 if (process.env.BLOB_READ_WRITE_TOKEN?.startsWith("REPLACE_")) invalid.push("BLOB_READ_WRITE_TOKEN");
+if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== "https://fbtpriygrhtalsblzbhh.supabase.co") invalid.push("NEXT_PUBLIC_SUPABASE_URL");
+if (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY && !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")) invalid.push("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
 if (missing.length) {
   console.error(`Missing environment variable names: ${missing.join(", ")}`);
   process.exitCode = 1;

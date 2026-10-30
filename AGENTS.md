@@ -21,13 +21,16 @@
 - Kiểu chữ đọc: độc giả chọn **DejaVu Serif** (mặc định, đóng gói `next/font/local`) hoặc **Times New Roman** (font hệ thống, thiếu thì dự phòng DejaVu). Lưu cùng tuỳ chọn đọc; không quay lại Georgia hoặc đóng gói font Windows khi chưa có quyền phân phối. Giữ tiếng Việt và nội dung gốc trong database. Khi đọc, mỗi LF/CRLF/CR tạo đoạn riêng; dòng trống chỉ phân cách, không tạo đoạn rỗng. Dòng tự xuống theo màn hình vẫn nằm trong đoạn. Mỗi đoạn có thụt dòng đầu 2em; dùng phần tử p và text an toàn, không chèn HTML hay dấu cách vào dữ liệu lưu.
 - Tuỳ chọn đọc gồm cỡ chữ, kiểu chữ, nền sáng/tối, giãn dòng 1,5–2,3, **giãn đoạn riêng** 0,5/0,8/1,2/1,6em (mặc định 0,8em thêm giữa hai đoạn) và độ rộng 600/720/900 px (tự co trên mobile). Giãn đoạn luôn cộng thêm khoảng cách ngoài line-height, không dùng line-height thay cho khoảng cách đoạn. Lưu ở `novel-reading-v1`, dữ liệu cũ thiếu trường dùng mặc định. Tên truyện/tiêu đề/nội dung cùng font đọc; tiêu đề serif trang chủ/admin/404 dùng DejaVu đóng gói toàn ứng dụng.
 - Đánh giá nằm dưới nội dung mỗi trang đọc, **dùng chung theo truyện**, không tách theo chương; gửi/ẩn phải cập nhật trang đọc.
-- Độc giả **không cần tài khoản**, không đăng nhập và không xác thực email.
-- Form đánh giá: tên hiển thị, số sao 1–5 và nhận xét tùy chọn. Admin được ẩn đánh giá spam.
+- Khách đọc miễn phí, không bắt buộc tài khoản. Theo yêu cầu bổ sung 25/10/2026, độc giả đăng ký/đăng nhập bằng email và mật khẩu hoặc Google qua Supabase Auth; phiên độc giả tách biệt admin.
+- Menu tài khoản là icon ba gạch bên phải dưới đường kẻ ngang: dưới masthead ở trang chủ và dưới thanh công cụ khi đọc. Giữ đúng một chữ “Góc đọc truyện” tại masthead trang chủ như bản cũ theo yêu cầu phát hành 25/10. Đăng nhập/Đăng ký nằm trong menu; không khôi phục banner tài khoản/chữ lặp phía trên. Trang đăng nhập/đăng ký gọn, không có banner này.
+- Đánh giá mới yêu cầu đăng nhập, lấy tên từ hồ sơ; lưu tài khoản và ngày gửi. Giữ đánh giá khách cũ. Admin được ẩn spam.
+- Tài khoản có thông báo chương mới trong web, lịch sử đánh giá và trạng thái từng chương Chưa đọc/Đang đọc/Đã đọc (gần cuối nội dung, không tính khối đánh giá).
+- Mỗi tài khoản giữ một dấu đọc tiếp. Quay lại vị trí đã đánh dấu phải bấm “Bỏ dấu và đọc tiếp”; sau khi bỏ có thể đặt dấu mới. Không tự ghi đè dấu cũ.
 - Trang admin có một mật khẩu riêng: sửa truyện/bìa (nút tải ảnh, xem trước, huỷ chọn; Lưu thông tin mới upload), thêm/sửa/xóa chương, lưu nháp, đăng chương và gỡ về nháp.
 - Đăng nhập admin không phải hệ thống tài khoản độc giả.
 - Nhập chương bằng ô văn bản nhiều dòng, giữ đoạn và xuống dòng. Lưu thủ công với thông báo rõ ràng.
 
-Không tự mở rộng thành nền tảng nhiều truyện. Không tự thêm tài khoản độc giả/tác giả, tìm kiếm, thể loại, tủ truyện, bình luận phân cấp, VIP, thanh toán, AI, audio, import DOCX/EPUB, lịch sử phiên bản hoặc cộng tác nhiều người. Chỉ bổ sung khi người dùng yêu cầu.
+Không tự mở rộng thành nền tảng nhiều truyện. Tài khoản độc giả đã được yêu cầu; không tự thêm tài khoản tác giả, tìm kiếm, thể loại, tủ truyện, bình luận phân cấp, VIP, thanh toán, AI, audio, import DOCX/EPUB, lịch sử phiên bản hoặc cộng tác nhiều người.
 
 ## 3. Hạn chế sao chép nội dung
 
@@ -42,11 +45,11 @@ Không tự mở rộng thành nền tảng nhiều truyện. Không tự thêm 
 - Next.js + TypeScript + Tailwind CSS; frontend và backend cùng dự án, chạy trên Vercel.
 - Supabase PostgreSQL trong project riêng `novel-platform` lưu dữ liệu; Vercel Blob lưu ảnh bìa. Người dùng đã chọn Supabase thay Neon; không cài hoặc tạo Neon.
 - Development/Preview dùng schema `novel_preview`, Production dùng `novel_production`, mỗi schema có role ứng dụng riêng. Không đổi sang project Supabase Writing hoặc cho role này truy cập schema kia.
-- Dùng driver `postgres` ở server qua transaction pooler, tắt prepared statements, giữ xác minh TLS bằng CA công khai ở `src/lib/db/supabase-ca.json`. Không cần Supabase Auth hoặc service-role key cho luồng hiện tại.
+- Dùng driver `postgres` ở server qua transaction pooler, tắt prepared statements, giữ xác minh TLS bằng CA công khai ở `src/lib/db/supabase-ca.json`. Supabase Auth xác minh độc giả ở server bằng getUser; không cần service-role key. Không tin user_id do client gửi.
 - Mã ứng dụng truy vấn qua `withDb` trong `src/lib/db/client.ts`: giữ riêng một kết nối trong mỗi callback, `await` từng câu lệnh và luôn trả kết nối. Không gửi `Promise.all` nhiều câu SQL trên cùng handle; pipelining của Postgres.js không tương thích Supavisor transaction mode. Có thể chạy song song các thao tác `withDb` riêng. Không đặt `max_pipeline: 0` vì lỗi upstream với transaction.
 - Secrets và mật khẩu admin local ở `.env.local`/`.local/`, luôn bị loại khỏi Git và deployment. Không in hoặc đưa vào tài liệu bàn giao.
-- Ba bảng nghiệp vụ: `novels`, `chapters`, `reviews`. Chỉ một truyện trong giao diện; giữ `novel_id` trong chương/đánh giá để nâng cấp sau.
-- Không thêm dịch vụ tài khoản, Redis, backend riêng hoặc thư viện nặng nếu chức năng hiện tại không cần.
+- Bảng gốc `novels`, `chapters`, `reviews`; bổ sung hồ sơ, tiến độ, dấu đọc và sự kiện chương mới trong từng schema riêng. Không thay dữ liệu truyện Production khi migration. Chỉ một truyện trong giao diện.
+- Không thêm nhà cung cấp tài khoản khác, Redis hoặc backend riêng. Google OAuth Client Secret chỉ nhập vào Supabase, không lưu trong repo/chat. Email xác nhận và URL chuyển hướng cần cấu hình thật, không tắt xác nhận để vượt bước cấu hình.
 - Không dùng filesystem của Vercel Functions hoặc biến trong bộ nhớ làm nơi lưu dữ liệu bền vững.
 - Kiểm tra package và tài liệu phù hợp phiên bản thực tế trước khi dùng API; không tự nâng cấp framework hoặc thay stack.
 - Dùng `npm run dev`/`npm run build` hiện có (Webpack). Turbopack đã gặp lỗi tạo tiến trình trên Windows; không tự đổi lại hoặc dùng Docker để xử lý.

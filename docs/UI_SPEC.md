@@ -1,5 +1,17 @@
 # Bố cục và đặc tả giao diện
 
+## Bổ sung tài khoản — 25/10/2026
+
+Chốt khi phát hành Production: giữ đúng một nhãn “GÓC ĐỌC TRUYỆN” cùng ngôi sao ở masthead trang chủ như bản cũ. Menu ba gạch vẫn ở bên phải dưới đường kẻ; không thêm lại banner tài khoản trên layout hoặc chữ lặp trong trang đăng nhập.
+
+- `/dang-nhap`: hai thẻ Đăng nhập / Đăng ký, email + mật khẩu; đăng ký thêm tên hiển thị. Nút “Tiếp tục với Google” dùng chung. Có thông báo xác nhận email, lỗi rõ ràng; không gửi token vào URL nội bộ.
+- Khách đọc và xem đánh giá bình thường. Form đánh giá yêu cầu đăng nhập; tên lấy từ hồ sơ, không cho mạo danh tài khoản khác.
+- Theo chỉnh sửa giao diện 25/10: không có banner tài khoản phía trên hoặc chữ “Góc đọc truyện” dư. Icon ba gạch bên phải nằm dưới đường kẻ masthead trang chủ; trong trang đọc nằm dưới đường kẻ thanh công cụ. Bấm icon mở menu Đăng nhập/Đăng ký hoặc Tài khoản/Đọc tiếp, có dấu thông báo mới. Đóng khi bấm ngoài, Escape hoặc chọn liên kết; hỗ trợ bàn phím. Trang đăng nhập dùng tiêu đề Đăng nhập/Đăng ký, bỏ tiêu đề chung và giảm khoảng cách trên. `/tai-khoan` hiển thị thông báo, dấu đọc tiếp, đánh giá của tôi kèm ngày và trạng thái ẩn, lịch sử đọc.
+- Mục lục bổ sung nhãn Chưa đọc / Đang đọc / Đã đọc cho tài khoản. Đến gần cuối nội dung chương (90%, không tính khối đánh giá) là Đã đọc; không tự hạ trạng thái sau khi đọc xong.
+- Mỗi tài khoản giữ đúng một dấu. Nút Đặt dấu ở vị trí hiện tại; nếu đã có dấu thì mở dấu hoặc bỏ dấu, không tự ghi đè. Quay lại chương có dấu: đưa tới đoạn lưu, dialog yêu cầu “Bỏ dấu và đọc tiếp”, hoặc quay về truyện. Chỉ mở lại nội dung sau khi server xác nhận bỏ dấu; lỗi mạng giữ dialog.
+- Thông báo chỉ trong web khi đăng nhập, chương chỉ thông báo lần đăng đầu tiên; sửa/gỡ/đăng lại không gửi trùng. Không hiện chương nháp.
+- Giao diện theo màu/chữ hiện có, nút tối thiểu 44px, mobile không tràn; dialog quản lý focus/Escape, không dùng màu làm trạng thái duy nhất.
+
 Cập nhật theo yêu cầu bổ sung sau giai đoạn 5, trước giai đoạn 6. Đã có ứng dụng, dữ liệu truyện thực tế trong Preview; bảng đầu vào giai đoạn 1 bên dưới là ghi nhận lịch sử.
 
 ## 1. Dữ liệu hiện có
@@ -97,9 +109,9 @@ Font giao diện dùng hệ thống; DejaVu Serif được đóng gói cùng ứ
 
 Mọi chương cùng hiển thị một tập đánh giá của truyện (novel_id 1). Không thêm chapter_id hay thống kê riêng cho chương.
 
-- Tên bắt buộc, 1–50 ký tự sau trim; sao là lựa chọn 1–5 bắt buộc, không chọn sẵn; nhận xét tùy chọn, tối đa 1.000 ký tự.
+- Tên lấy từ hồ sơ (1–50 ký tự); sao là lựa chọn 1–5 bắt buộc, không chọn sẵn; nhận xét tùy chọn, tối đa 1.000 ký tự.
 - Chọn sao bằng nhóm radio có nhãn `1 sao` đến `5 sao`, dùng được bằng bàn phím; không chỉ dựa vào icon.
-- Tên và nhận xét vẫn chọn, copy và paste bình thường. Không có email, tài khoản hoặc link đăng nhập.
+- Nhận xét vẫn chọn, copy và paste bình thường. Theo bổ sung tài khoản, tên lấy từ hồ sơ; khách thấy nút Đăng nhập để đánh giá.
 - Đang gửi: khóa nút gửi, giữ dữ liệu. Lỗi: báo ngay tại trường hoặc form và giữ dữ liệu để sửa. Thành công: báo `Đã gửi đánh giá.`, làm mới danh sách và điểm.
 - Chưa có đánh giá: hiển thị `Chưa có đánh giá.`, không hiển thị điểm 0/5 như một đánh giá thật.
 - Danh sách mới nhất trước; 10 đánh giá mỗi lần, nút Xem thêm nếu còn. Đánh giá đã ẩn không xuất hiện hoặc được tính vào điểm trung bình.
@@ -110,7 +122,7 @@ Mọi chương cùng hiển thị một tập đánh giá của truyện (novel_
 
 - Form nhỏ căn giữa: tiêu đề `Quản trị truyện`, ô mật khẩu có label, nút `Vào quản trị`.
 - Enter gửi form; sai mật khẩu báo lỗi chung, không tiết lộ thông tin cấu hình. Có trạng thái đang kiểm tra và giới hạn thử sai.
-- Không có đăng ký, quên mật khẩu, tài khoản độc giả hoặc lựa chọn vai trò.
+- Đây là form admin riêng, không có lựa chọn vai trò. Đăng nhập/đăng ký độc giả nằm ở `/dang-nhap`, không cấp quyền admin.
 
 ### Sau khi vào
 
@@ -164,7 +176,7 @@ Tên | Sao | Nhận xét | Ngày | [Ẩn đánh giá]
 - [x] Đã ghi rõ nội dung, bìa còn thiếu và cách hiển thị khi chưa được cung cấp.
 - [x] Đã chốt ba màn hình, bố cục mobile/desktop, màu, chữ và điều hướng.
 - [x] Đã chốt trường dữ liệu, nút hành động và trạng thái trống/lỗi/đang lưu.
-- [x] Đã giữ phạm vi một truyện, không tài khoản độc giả, không build Docker trên máy người dùng.
+- [x] Giai đoạn đầu giữ phạm vi một truyện, không build Docker trên máy người dùng. Tài khoản độc giả được bổ sung riêng theo yêu cầu 25/10/2026.
 
 Kiểm tra ở giai đoạn này là đối chiếu đặc tả với yêu cầu. Chưa có kiểm thử giao diện, backend hoặc deployment; thực hiện ở các giai đoạn xây dựng tương ứng.
 

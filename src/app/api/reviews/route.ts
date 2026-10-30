@@ -6,6 +6,8 @@ import { reviewCursor, reviewInput } from "@/lib/reviews/validation";
 import { isSameOrigin } from "@/lib/security/origin";
 import { consumeRateLimit } from "@/lib/security/rate-limit";
 import { requestIdentifier } from "@/lib/security/request-identifier";
+import { readerUser } from "@/lib/reader-account/auth";
+import { ensureReaderProfile } from "@/lib/db/reader-account";
 
 export const dynamic = "force-dynamic";
 function failure(error: unknown) {
@@ -20,9 +22,11 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) throw new HttpError(403, "Yêu cầu không hợp lệ. Hãy tải lại trang.");
-    const input = reviewInput(record(await readJson(request, 16384)));
-    if (!await consumeRateLimit("review", requestIdentifier(request))) return json({ error: "Bạn vừa gửi đánh giá. Vui lòng đợi một phút trước khi gửi tiếp." }, 429);
-    await createReview(input);
+    const user = (await readerUser())!;
+    const profile = await ensureReaderProfile(user);
+    const input = reviewInput({ ...record(await readJson(request, 16384)), displayName: profile.display_name });
+    if (!await consumeRateLimit("review", user.id) || !await consumeRateLimit("review", requestIdentifier(request))) return json({ error: "Bạn vừa gửi đánh giá. Vui lòng đợi một phút trước khi gửi tiếp." }, 429);
+    await createReview(input, user.id);
     revalidatePath("/");
     revalidatePath("/chuong/[id]", "page");
     return json({ ok: true }, 201);

@@ -3,9 +3,9 @@ import { createHmac } from "node:crypto";
 import { withDb, getSchema } from "../db/client";
 import { secretEnv } from "../env";
 
-export async function consumeRateLimit(scope: "admin-login" | "review", identifier: string): Promise<boolean> {
-  const limit = scope === "admin-login" ? 5 : 1;
-  const windowSeconds = scope === "admin-login" ? 900 : 60;
+export async function consumeRateLimit(scope: "admin-login" | "reader-auth" | "review", identifier: string): Promise<boolean> {
+  const limit = scope === "reader-auth" ? 15 : scope === "admin-login" ? 5 : 1;
+  const windowSeconds = scope === "review" ? 60 : 900;
   const key = createHmac("sha256", secretEnv("RATE_LIMIT_SECRET")).update(`${scope}:${identifier}`).digest("hex");
   const [row] = await withDb(async sql => sql<{ attempts: number }[]>`
     insert into ${sql(getSchema())}.rate_limits as current_limit (key, attempts, reset_at)
